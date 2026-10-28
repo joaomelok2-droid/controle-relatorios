@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-UQeGsarxoMixVzy0fWUvSS5fQPrs0i3906dZuFMfnlc=' https://www.gstatic.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com; frame-src https://*.firebaseapp.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-xZXLTC/ZTN+s9pOxtef0+vZCRzAr13KzPLIsk8X6S1Q=' https://www.gstatic.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com; frame-src https://*.firebaseapp.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Controle de Relatórios</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -326,6 +326,20 @@ img{max-width:100%}
 .side-foot .sair:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .tag.adm{background:var(--accent-soft);color:var(--accent);border-color:transparent;font-weight:600}
 .eq-acts{display:flex;flex-wrap:wrap;gap:6px}
+.side-toggle{position:absolute;top:12px;right:8px;width:26px;height:26px;border:0;border-radius:6px;background:transparent;color:var(--side-ink-2);cursor:pointer;display:grid;place-items:center;opacity:.55}
+.side-toggle:hover,.side-toggle:focus-visible{opacity:1;background:rgba(255,255,255,.08)}
+.side .brand{padding-right:24px}
+.app.menu-oculto{grid-template-columns:minmax(0,1fr)}
+.app.menu-oculto .side{display:none}
+.app.menu-oculto .main{padding-left:max(64px,env(safe-area-inset-left,0px))}
+.menu-flutuante{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:max(14px,env(safe-area-inset-left,0px));z-index:30;width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);box-shadow:var(--shadow);opacity:.7;cursor:pointer;display:grid;place-items:center}
+.menu-flutuante:hover,.menu-flutuante:focus-visible{opacity:1}
+@media (max-width:860px){.side-toggle,.menu-flutuante{display:none!important}.app.menu-oculto .side{display:flex}.app.menu-oculto .main{padding-left:max(16px,env(safe-area-inset-left,0px))}}
+.aud-acao{font-weight:600;white-space:nowrap}
+.aud-acao.EXCLUSAO{color:var(--can)}
+.aud-acao.EDICAO{color:var(--pend)}
+.aud-acao.CADASTRO{color:var(--apr)}
+.aud-acao.EQUIPE{color:var(--info)}
 </style>
 </head>
 <body>
@@ -340,6 +354,7 @@ img{max-width:100%}
   </header>
 
   <aside class="side" id="side">
+    <button type="button" class="side-toggle" id="ocultarMenu" title="Ocultar menu lateral" aria-label="Ocultar menu lateral"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></button>
     <div class="brand">
       <div class="brand-mark">CR</div>
       <div><strong>Controle de Relatórios</strong><span>Escritório de Diárias, Passagens e Atividades Externas · Gabinete da Presidência · Coren-PE</span></div>
@@ -352,6 +367,7 @@ img{max-width:100%}
       <a data-nav="historico" href="#historico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Histórico de movimentações</a>
       <a data-nav="gerencial" href="#gerencial"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Relatórios gerenciais</a>
       <a data-nav="equipe" href="#equipe"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.3 3.3 0 0 1 0 6.4M18.5 14.8c1.6.8 2.6 2.5 3 5.2"/></svg>Equipe</a>
+      <a data-nav="auditoria" href="#auditoria" id="navAuditoria" hidden><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>Auditoria</a>
     </nav>
     <div class="side-foot">
       <span class="who" id="who"></span>
@@ -361,6 +377,7 @@ img{max-width:100%}
   </aside>
   <div class="scrim" id="scrim" hidden></div>
 
+  <button type="button" class="menu-flutuante" id="mostrarMenu" title="Mostrar menu lateral" aria-label="Mostrar menu lateral" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <main class="main"><div class="view" id="view"><div class="empty"><strong>Carregando…</strong></div></div></main>
 </div>
 
@@ -519,7 +536,7 @@ function corpo(r) {
   b.qtdDevolucoes = d.qtdDev; b.proximaConsultaSugerida = d.prox;
   return JSON.parse(JSON.stringify(b));
 }
-function salvar(r) {
+function salvar_original(r) {
   const body = corpo(r);
   const run = () => S.db.collection(COL).doc(r.id).set(body);
   const p = (filas[r.id] || Promise.resolve()).then(run, run);
@@ -552,11 +569,40 @@ function tratarErroEscrita(e) {
 async function alterar(id, fn, msg) {
   const cur = S.reports.find(x => x.id === id);
   if (!cur) { toast("Registro não encontrado."); return false; }
-  const r = structuredClone(cur);
-  r.historico = r.historico ? [...r.historico] : [];
-  const res = fn(r);
-  if (res === false) return false;
-  return gravar(r, msg);
+  const ref = S.db.collection(COL).doc(id);
+  let final = null, recusado = false, mudouStatus = false;
+  try {
+    await (filas[id] || Promise.resolve());
+    await S.db.runTransaction(async tx => {
+      final = null; recusado = false;
+      const snap = await tx.get(ref);
+      if (!snap.exists) { const e = new Error("excluido"); e.code = "not-found"; throw e; }
+      const r = Object.assign({ id }, snap.data());
+      r.historico = Array.isArray(r.historico) ? [...r.historico] : [];
+      mudouStatus = r.status !== cur.status;
+      const antes = r.historico.length;
+      if (fn(r) === false) { recusado = true; return; }
+      const novos = r.historico.slice(antes);
+      const ed = novos.find(e => e.tipo === "ATUALIZACAO");
+      const aud = auditoriaDe(r, ed ? "EDICAO" : "MOVIMENTACAO",
+        ed ? ed.descricao : novos.map(e => (TIPOS[e.tipo] ? TIPOS[e.tipo].l : e.tipo) + (e.descricao ? ": " + e.descricao : "")).join("\n"));
+      r.auditId = aud.id;
+      tx.set(S.db.collection("auditoria").doc(aud.id), aud.dados);
+      tx.set(ref, corpo(r));
+      final = r;
+    });
+  } catch (e) {
+    if (e && e.code === "not-found") { toast("Este relatório foi excluído por outra pessoa da equipe."); go(S.back || "relatorios"); return false; }
+    tratarErroEscrita(e);
+    return false;
+  }
+  if (recusado) {
+    if (mudouStatus) toast("Outra pessoa da equipe acabou de alterar o status deste relatório. Confira a ficha atualizada.");
+    return false;
+  }
+  aplicarLocal(final);
+  if (msg) toast(msg);
+  return true;
 }
 function addEv(r, tipo, o = {}) {
   const now = agora();
@@ -674,7 +720,7 @@ function filtrar(f) {
 function filtrosAtivos(f) { return Object.keys(f).filter(k => !["sort", "dir"].includes(k) && f[k]).length; }
 
 /* ============ Navegação ============ */
-const VIEWS = ["dashboard", "relatorios", "pendencias", "historico", "gerencial", "equipe"];
+const VIEWS = ["dashboard", "relatorios", "pendencias", "historico", "gerencial", "equipe", "auditoria"];
 function go(view, opts = {}) {
   if (VIEWS.includes(S.view)) S.back = S.view;
   S.view = view;
@@ -689,14 +735,14 @@ function renderView() {
   const V = $("#view");
   if (!S.db) return;
   if (!S.loaded) { V.innerHTML = `<div class="empty"><strong>Carregando registros…</strong></div>`; return; }
-  const fns = { dashboard: vDashboard, relatorios: vRelatorios, pendencias: vPendencias, historico: vHistorico, gerencial: vGerencial, equipe: vEquipe, ficha: vFicha, form: vForm };
+  const fns = { dashboard: vDashboard, relatorios: vRelatorios, pendencias: vPendencias, historico: vHistorico, gerencial: vGerencial, equipe: vEquipe, auditoria: vAuditoria, ficha: vFicha, form: vForm };
   V.innerHTML = (fns[S.view] || vDashboard)();
   renderRes();
   aplicarPermissoes();
 }
 function renderRes() {
   const R = $("#res");
-  const fns = { dashboard: rDashboard, relatorios: rRelatorios, pendencias: rPendencias, historico: rHistorico, gerencial: rGerencial, equipe: rEquipe };
+  const fns = { dashboard: rDashboard, relatorios: rRelatorios, pendencias: rPendencias, historico: rHistorico, gerencial: rGerencial, equipe: rEquipe, auditoria: rAuditoria };
   if (R && fns[S.view]) { R.innerHTML = fns[S.view](); aplicarPermissoes(); }
 }
 function atualizar() {
@@ -998,9 +1044,9 @@ function vFicha() {
       <button class="btn" data-act="devolucao" data-id="${r.id}">${d.qtdDev ? "Registrar nova devolução" : "Devolver para alteração"}</button>
       <button class="btn" data-act="aprovar" data-id="${r.id}">Aprovar</button>
       <button class="btn" data-act="cancelar" data-id="${r.id}">Cancelar demanda</button>` : ""}
-      <button class="btn" data-act="editar" data-id="${r.id}">Editar dados</button>
+      ${S.isAdmin ? `<button class="btn" data-act="editar" data-id="${r.id}">Editar dados</button>` : ""}
       ${pend ? `<button class="btn ghost" data-act="retro" data-id="${r.id}">Registro retrospectivo</button>` : ""}
-      <button class="btn ghost" style="color:var(--can)" data-act="excluir" data-id="${r.id}">Excluir registro</button>
+      ${S.isAdmin ? `<button class="btn ghost" style="color:var(--can)" data-act="excluir" data-id="${r.id}">Excluir relatório</button>` : ""}
     </div>
   </div>
   ${hl ? `<div class="active-note">${nHl} ${plural(nHl, "movimentação", "movimentações")} entre ${hl.a ? fData(hl.a) : "o início"} e ${hl.b ? fData(hl.b) : "hoje"} ${plural(nHl, "destacada", "destacadas")} no histórico.</div>` : ""}
@@ -1282,7 +1328,7 @@ function modalCancelar(id) {
     }
   });
 }
-function modalExcluir(id) {
+function modalExcluir_original(id) {
   const r = S.reports.find(x => x.id === id); if (!r) return;
   const n = (r.historico || []).length;
   openModal({
@@ -1360,7 +1406,7 @@ document.addEventListener("click", async e => {
     case "cancelar": modalCancelar(id); break;
     case "retro": modalRetro(id); break;
     case "excluir": modalExcluir(id); break;
-    case "editar": go("form", { id }); break;
+    case "editar": if (!S.isAdmin) { toast("Somente o administrador pode editar os dados cadastrais."); break; } go("form", { id }); break;
     case "mclose": closeModal(); break;
     case "copiar": {
       const ta = $("#cpTxt");
@@ -1510,12 +1556,13 @@ function erroSenha(s) {
 /* ---------- Equipe: estado ---------- */
 S.perfis = []; S.adminEmail = ""; S.isAdmin = false; S.meuEmail = "";
 let subs = [], dadosIniciados = false;
-function pararTudo() { subs.forEach(f => { try { f(); } catch (e) {} }); subs = []; dadosIniciados = false; }
+function pararTudo() { subs.forEach(f => { try { f(); } catch (e) {} }); subs = []; dadosIniciados = false; pararAud(); }
 function nomePerfil(email) { const p = S.perfis.find(x => x.id === email); return (p && p.nome) || email; }
 function atualizarQuem() {
   const eu = S.perfis.find(p => p.id === S.meuEmail);
   S.me = (eu && eu.nome) || nomeSugerido(S.meuEmail) || S.meuEmail;
   $("#who").textContent = S.me + (S.isAdmin ? " · administrador" : "");
+  $("#navAuditoria").hidden = !S.isAdmin;
 }
 function urlSistema() { return location.origin + location.pathname; }
 
@@ -1599,7 +1646,8 @@ function modalIncluir() {
       if (!RX_EMAIL.test(email) || email.includes("/")) return mErr("Informe um e-mail válido.", "#m-email");
       if (S.perfis.some(p => p.id === email)) return mErr("Este e-mail já está na equipe.", "#m-email");
       try {
-        await S.db.collection("perfis").doc(email).set({ email, nome, ativo: true, criadoEm: agora(), criadoPor: S.meuEmail });
+        await loteEquipe(b => b.set(S.db.collection("perfis").doc(email), { email, nome, ativo: true, criadoEm: agora(), criadoPor: S.meuEmail }),
+          `Perfil incluído: ${nome} (${email})`);
       } catch (e) { return erroEquipe(e); }
       S.perfis = [...S.perfis.filter(p => p.id !== email), { id: email, email, nome, ativo: true }];
       toast("Perfil incluído.");
@@ -1615,7 +1663,7 @@ function modalEditarNome(email) {
     body: fld("m-nome", "Nome", `<input type="text" id="m-nome" maxlength="80" value="${esc(p.nome)}">`, { req: 1, help: "Os registros antigos mantêm o nome usado na época." }),
     onSubmit: async () => {
       const nome = $("#m-nome").value.trim(); if (!nome) return mErr("Informe o nome.", "#m-nome");
-      try { await S.db.collection("perfis").doc(email).update({ nome }); } catch (e) { return erroEquipe(e); }
+      try { await loteEquipe(b => b.update(S.db.collection("perfis").doc(email), { nome }), `Nome do perfil ${email} alterado: ${p.nome} → ${nome}`); } catch (e) { return erroEquipe(e); }
       toast("Nome atualizado.");
     }
   });
@@ -1623,14 +1671,14 @@ function modalEditarNome(email) {
 function modalAlternar(email) {
   const p = S.perfis.find(x => x.id === email); if (!p) return;
   if (!p.ativo) {
-    S.db.collection("perfis").doc(email).update({ ativo: true }).then(() => toast("Perfil reativado."), erroEquipe);
+    loteEquipe(b => b.update(S.db.collection("perfis").doc(email), { ativo: true }), `Perfil reativado: ${p.nome} (${email})`).then(() => toast("Perfil reativado."), erroEquipe);
     return;
   }
   openModal({
     title: "Desativar perfil", sub: `${esc(p.nome)} · ${esc(email)}`, submit: "Desativar", danger: true,
     body: `<p style="font-size:.88rem">A pessoa perde o acesso ao sistema na hora. Você pode reativar depois, por exemplo na volta de férias ou licença.</p>`,
     onSubmit: async () => {
-      try { await S.db.collection("perfis").doc(email).update({ ativo: false }); } catch (e) { return erroEquipe(e); }
+      try { await loteEquipe(b => b.update(S.db.collection("perfis").doc(email), { ativo: false }), `Perfil desativado: ${p.nome} (${email})`); } catch (e) { return erroEquipe(e); }
       toast("Perfil desativado.");
     }
   });
@@ -1643,7 +1691,7 @@ function modalExcluirPerfil(email) {
       <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer"><input type="checkbox" id="m-conf" style="margin-top:3px"> <span>Confirmo a exclusão deste perfil.</span></label>`,
     onSubmit: async () => {
       if (!$("#m-conf").checked) return mErr("Marque a confirmação para excluir.", "#m-conf");
-      try { await S.db.collection("perfis").doc(email).delete(); } catch (e) { return erroEquipe(e); }
+      try { await loteEquipe(b => b.delete(S.db.collection("perfis").doc(email)), `Perfil excluído: ${p.nome} (${email})`); } catch (e) { return erroEquipe(e); }
       toast("Perfil excluído.");
     }
   });
@@ -1657,7 +1705,7 @@ function modalTransferir(email) {
       <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer"><input type="checkbox" id="m-conf" style="margin-top:3px"> <span>Confirmo que desejo passar a administração para ${esc(p.nome)}.</span></label>`,
     onSubmit: async () => {
       if (!$("#m-conf").checked) return mErr("Marque a confirmação para continuar.", "#m-conf");
-      try { await S.db.doc("sistema/config").set({ admin: email, atualizadoEm: agora() }); } catch (e) { return erroEquipe(e); }
+      try { await loteEquipe(b => b.set(S.db.doc("sistema/config"), { admin: email, atualizadoEm: agora() }), `Administração passada de ${S.me} (${S.meuEmail}) para ${p.nome} (${email})`); } catch (e) { return erroEquipe(e); }
       toast(`Administração passada para ${p.nome}.`);
     }
   });
@@ -1702,7 +1750,8 @@ function entrarNoSistema() {
       S.canWrite = true; aplicarPermissoes();
       S.db.collection("perfis").doc(S.meuEmail).update({ ultimoAcesso: agora() }).catch(() => {});
       iniciarDados();
-    } else if (S.view === "equipe") renderView();
+    } else if (["equipe", "ficha", "auditoria"].includes(S.view)) renderView();
+    assinarAuditoria();
   };
   subs.push(S.db.doc("sistema/config").onSnapshot(s => {
     const antes = S.isAdmin;
@@ -1716,6 +1765,146 @@ function entrarNoSistema() {
     perfisOk = true; pronto();
   }, erroAcesso));
 }
+
+/* ---------- Auditoria ---------- */
+// Cada cadastro, movimentação, edição e exclusão de relatório e cada mudança na equipe
+// gera um registro imutável na coleção "auditoria", gravado junto com a própria ação.
+// Só o administrador consegue ler; ninguém (nem ele) consegue alterar ou apagar.
+const ACOES_AUD = { CADASTRO: "Cadastro", MOVIMENTACAO: "Movimentação", EDICAO: "Edição de dados", EXCLUSAO: "Exclusão", EQUIPE: "Equipe" };
+function auditoriaDe(r, acao, detalhe, idFixo) {
+  const id = idFixo || ("a" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
+  return { id, dados: {
+    acao, em: agora(), emISO: new Date().toISOString(),
+    porEmail: S.meuEmail, porNome: S.me || S.meuEmail,
+    relatorioId: r ? r.id : "", protocolo: r ? (r.protocolo || "") : "", solicitante: r ? (r.solicitante || "") : "",
+    modalidade: r ? (r.modalidade || "") : "", statusApos: r ? (r.status || "") : "",
+    detalhe: String(detalhe || "").slice(0, 4000)
+  } };
+}
+async function loteEquipe(fn, detalhe) {
+  const b = S.db.batch();
+  fn(b);
+  const aud = auditoriaDe(null, "EQUIPE", detalhe);
+  b.set(S.db.collection("auditoria").doc(aud.id), aud.dados);
+  await b.commit();
+}
+// Cadastro de relatório: grava o relatório e a auditoria no mesmo lote.
+function salvar(r) {
+  const ini = (r.historico || []).map(e => (TIPOS[e.tipo] ? TIPOS[e.tipo].l : e.tipo) + (e.descricao ? ": " + e.descricao : "")).join("\n");
+  const aud = auditoriaDe(r, "CADASTRO", ini);
+  r.auditId = aud.id;
+  const b = S.db.batch();
+  b.set(S.db.collection("auditoria").doc(aud.id), aud.dados);
+  b.set(S.db.collection(COL).doc(r.id), corpo(r));
+  return b.commit();
+}
+// Exclusão de relatório: só o administrador, com confirmação.
+function modalExcluir(id) {
+  const r = S.reports.find(x => x.id === id); if (!r) return;
+  if (!S.isAdmin) { toast("Somente o administrador pode excluir relatórios."); return; }
+  const d = derive(r);
+  openModal({
+    title: "Deseja realmente excluir este relatório?",
+    sub: `${esc(r.solicitante)}${r.protocolo ? " · SEI " + esc(r.protocolo) : ""} · ${esc(MOD[r.modalidade] || "")}`,
+    body: `<dl class="dl" style="font-size:.86rem">
+        <dt>Status</dt><dd>${stBadge(r.status, true)}</dd>
+        <dt>Atividade</dt><dd class="mono">${atividade(r)}</dd>
+        <dt>Movimentações no histórico</dt><dd class="mono">${d.h.length}</dd>
+      </dl>
+      <div class="banner warn">O relatório e todo o histórico dele serão apagados e <strong>não poderão ser recuperados</strong>. A exclusão ficará registrada na Auditoria, com o seu nome.</div>`,
+    footer: `<button type="button" class="btn" data-act="mclose">Não, manter</button><button type="submit" class="btn danger">Sim, excluir</button>`,
+    onSubmit: async () => {
+      const det = `Relatório excluído. Status: ${ST[r.status] || r.status}. Atividade: ${atividade(r)}. Movimentações no histórico: ${d.h.length}.`;
+      const aud = auditoriaDe(r, "EXCLUSAO", det, "exc-" + id);
+      try {
+        await (filas[id] || Promise.resolve());
+        const b = S.db.batch();
+        b.set(S.db.collection("auditoria").doc(aud.id), aud.dados);
+        b.delete(S.db.collection(COL).doc(id));
+        await b.commit();
+      } catch (e) {
+        if (e && e.code === "permission-denied") { toast("Somente o administrador pode excluir relatórios."); return false; }
+        tratarErroEscrita(e); return false;
+      }
+      S.reports = S.reports.filter(x => x.id !== id);
+      closeModal();
+      go(S.back || "relatorios");
+      atualizar();
+      toast("Relatório excluído. A exclusão foi registrada na Auditoria.");
+      return "keep";
+    }
+  });
+}
+
+S.aud = []; S.audOk = false;
+S.af = { a: "", b: "", acao: "", por: "", q: "" };
+let pararAudFn = null;
+function pararAud() { if (pararAudFn) { try { pararAudFn(); } catch (e) {} pararAudFn = null; } S.aud = []; S.audOk = false; }
+function assinarAuditoria() {
+  if (!S.isAdmin) { pararAud(); return; }
+  if (pararAudFn) return;
+  pararAudFn = S.db.collection("auditoria").orderBy("emISO", "desc").limit(2000).onSnapshot(snap => {
+    S.aud = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((x, y) => String(y.emISO).localeCompare(String(x.emISO))); S.audOk = true;
+    if (S.view === "auditoria") renderRes();
+  }, err => { console.error(err); pararAudFn = null; S.audOk = true; if (S.view === "auditoria") renderRes(); });
+}
+function vAuditoria() {
+  if (!S.isAdmin) return `<div class="card empty" style="max-width:560px;margin:40px auto"><strong>Área restrita ao administrador</strong><span>A auditoria só pode ser consultada pelo administrador da equipe.</span></div>`;
+  const f = S.af;
+  const pessoas = [...new Set(S.aud.map(x => x.porEmail))].sort();
+  return `<div class="page-head"><div><p class="eyebrow">Somente o administrador vê esta tela</p><h1>Auditoria</h1></div>
+    <div class="acts"><button class="btn" data-act="aud-exp" data-fmt="xlsx">Exportar Excel</button><button class="btn" data-act="aud-exp" data-fmt="csv">Exportar CSV</button></div></div>
+  <div class="card filters">
+    <div class="field"><span class="lbl">Período</span><div class="range"><input type="date" id="au-a" data-au="a" value="${esc(f.a)}" aria-label="Período — de"><span>até</span><input type="date" id="au-b" data-au="b" value="${esc(f.b)}" aria-label="Período — até"></div></div>
+    ${fld("au-acao", "Ação", `<select id="au-acao" data-au="acao">${selOpts(ACOES_AUD, f.acao, "Todas")}</select>`)}
+    ${fld("au-por", "Feito por", `<select id="au-por" data-au="por"><option value="">Todos</option>${pessoas.map(e => `<option value="${esc(e)}" ${f.por === e ? "selected" : ""}>${esc(nomePerfil(e))} (${esc(e)})</option>`).join("")}</select>`)}
+    ${fld("au-q", "Solicitante, nº SEI ou detalhe", `<input type="search" id="au-q" data-au="q" value="${esc(f.q)}">`)}
+  </div>
+  <div id="res"></div>`;
+}
+function audFiltrada() {
+  const f = S.af, t = norm(f.q);
+  return S.aud.filter(x => inR(x.em, f.a, f.b) && (!f.acao || x.acao === f.acao) && (!f.por || x.porEmail === f.por)
+    && (!t || norm([x.solicitante, x.protocolo, x.detalhe, x.porNome].join(" ")).includes(t)));
+}
+function rAuditoria() {
+  if (!S.isAdmin) return "";
+  if (!S.audOk) return `<div class="card empty"><span>Carregando a auditoria…</span></div>`;
+  const l = audFiltrada();
+  if (!l.length) return `<div class="card empty"><span>${S.aud.length ? "Nenhum registro com esses filtros." : "Nenhuma ação registrada ainda."}</span></div>`;
+  return `<div class="tbl-wrap"><table><thead><tr><th>Data e hora</th><th>Ação</th><th>Relatório</th><th>Detalhe</th><th>Feito por</th></tr></thead><tbody>
+    ${l.slice(0, 500).map(x => {
+      const existe = x.relatorioId && S.reports.some(r => r.id === x.relatorioId);
+      return `<tr ${existe ? `class="click" data-act="ficha" data-id="${esc(x.relatorioId)}"` : ""}>
+      <td class="dt">${fDH(x.em)}</td>
+      <td><span class="aud-acao ${esc(x.acao)}">${esc(ACOES_AUD[x.acao] || x.acao)}</span></td>
+      <td>${x.relatorioId ? `${esc(x.solicitante)}<span class="sub">${x.protocolo ? "SEI " + esc(x.protocolo) + " · " : ""}${esc(MOD[x.modalidade] || "")}${existe ? "" : " · excluído"}</span>` : `<span class="muted">—</span>`}</td>
+      <td class="wrap" style="white-space:pre-wrap;font-size:.82rem">${esc(x.detalhe)}</td>
+      <td>${esc(x.porNome)}<span class="sub">${esc(x.porEmail)}</span></td></tr>`; }).join("")}
+  </tbody></table></div>
+  <div class="tbl-foot"><span>${l.length} ${plural(l.length, "registro", "registros")}${l.length > 500 ? " · exibindo os 500 mais recentes (a exportação inclui todos)" : ""}</span><span>Os registros da auditoria não podem ser alterados nem apagados.</span></div>`;
+}
+document.addEventListener("input", e => {
+  const k = e.target.dataset && e.target.dataset.au; if (!k) return;
+  S.af[k] = e.target.value; renderRes();
+});
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-act='aud-exp']"); if (!a || !S.isAdmin) return;
+  const l = audFiltrada(); if (!l.length) { toast("Nenhum registro para exportar."); return; }
+  const rows = [["Data e hora", "Ação", "Solicitante", "Nº Processo SEI", "Modalidade", "Status após a ação", "Detalhe", "Feito por", "E-mail"]];
+  l.forEach(x => rows.push([fDH(x.em), ACOES_AUD[x.acao] || x.acao, x.solicitante, x.protocolo, MOD[x.modalidade] || "", ST[x.statusApos] || "", x.detalhe, x.porNome, x.porEmail]));
+  exportar("auditoria", [{ name: "Auditoria", rows }], a.dataset.fmt);
+});
+
+/* ---------- Ocultar / mostrar o menu lateral ---------- */
+function menuOculto(ocultar, guardar) {
+  $(".app").classList.toggle("menu-oculto", ocultar);
+  $("#mostrarMenu").hidden = !ocultar;
+  if (guardar) { try { localStorage.setItem("cr-menu-oculto", ocultar ? "1" : "0"); } catch (e) {} }
+}
+$("#ocultarMenu").addEventListener("click", () => { menuOculto(true, true); $("#mostrarMenu").focus(); });
+$("#mostrarMenu").addEventListener("click", () => { menuOculto(false, true); $("#ocultarMenu").focus(); });
+try { if (localStorage.getItem("cr-menu-oculto") === "1") menuOculto(true, false); } catch (e) {}
 
 function init() {
   if (window.top !== window.self) {
@@ -1789,6 +1978,8 @@ function init() {
     try {
       await S.db.doc("sistema/config").set({ admin: S.meuEmail, atualizadoEm: agora() });
       await S.db.collection("perfis").doc(S.meuEmail).set({ email: S.meuEmail, nome, ativo: true, criadoEm: agora(), criadoPor: S.meuEmail });
+      S.me = nome;
+      try { const aud = auditoriaDe(null, "EQUIPE", `Configuração inicial: ${nome} (${S.meuEmail}) definido(a) como administrador(a).`); await S.db.collection("auditoria").doc(aud.id).set(aud.dados); } catch (e) {}
       entrarNoSistema();
     } catch (err) {
       console.error(err);
