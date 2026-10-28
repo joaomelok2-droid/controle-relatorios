@@ -1,0 +1,1876 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-UQeGsarxoMixVzy0fWUvSS5fQPrs0i3906dZuFMfnlc=' https://www.gstatic.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com; frame-src https://*.firebaseapp.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Controle de Relatórios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: barra lateral institucional fixa + área de trabalho em fichas; no celular a barra vira menu deslizante. */
+:root{
+  --bg:#f2f5f6; --surface:#ffffff; --surface-2:#eaf0f2; --line:#d6dfe2; --line-2:#c3cfd3;
+  --ink:#16242a; --ink-2:#4a5b62; --ink-3:#77878e;
+  --accent:#145a6c; --accent-hover:#0f4a59; --accent-ink:#ffffff; --accent-soft:#e0eef1;
+  --side:#0f2e37; --side-2:#173d48; --side-ink:#c9dce1; --side-ink-2:#8fadb5;
+  --pend:#8a5300; --pend-bg:#fbefd8; --pend-dot:#d18b1c;
+  --apr:#1d6638; --apr-bg:#e0f1e5; --apr-dot:#2f9a57;
+  --can:#7d3535; --can-bg:#f4e3e1; --can-dot:#b45a55;
+  --info:#1d4f8a; --info-bg:#e3ecf8;
+  --due-bg:#fff4dc; --due-line:#e8b85a;
+  --hl:#fff1c4;
+  --shadow:0 1px 2px rgba(15,46,55,.06),0 4px 16px rgba(15,46,55,.06);
+  --f-sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1719; --surface:#152124; --surface-2:#1b2a2e; --line:#26383d; --line-2:#33494f;
+  --ink:#e3ecee; --ink-2:#a9babf; --ink-3:#7c9096;
+  --accent:#5fb3c8; --accent-hover:#7cc4d6; --accent-ink:#082027; --accent-soft:#17343b;
+  --side:#0a1416; --side-2:#14272b; --side-ink:#c9dce1; --side-ink-2:#7f9aa1;
+  --pend:#f0bf6a; --pend-bg:#3a2a10; --pend-dot:#e0a23c;
+  --apr:#82d3a0; --apr-bg:#16321f; --apr-dot:#4fb877;
+  --can:#eba29c; --can-bg:#3a1d1b; --can-dot:#cf726b;
+  --info:#9cc2f0; --info-bg:#182a42;
+  --due-bg:#33280f; --due-line:#8c6a22;
+  --hl:#3a3212;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0e1719; --surface:#152124; --surface-2:#1b2a2e; --line:#26383d; --line-2:#33494f;
+  --ink:#e3ecee; --ink-2:#a9babf; --ink-3:#7c9096;
+  --accent:#5fb3c8; --accent-hover:#7cc4d6; --accent-ink:#082027; --accent-soft:#17343b;
+  --side:#0a1416; --side-2:#14272b; --side-ink:#c9dce1; --side-ink-2:#7f9aa1;
+  --pend:#f0bf6a; --pend-bg:#3a2a10; --pend-dot:#e0a23c;
+  --apr:#82d3a0; --apr-bg:#16321f; --apr-dot:#4fb877;
+  --can:#eba29c; --can-bg:#3a1d1b; --can-dot:#cf726b;
+  --info:#9cc2f0; --info-bg:#182a42;
+  --due-bg:#33280f; --due-line:#8c6a22;
+  --hl:#3a3212;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-sans);font-size:14px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{margin:0;text-wrap:balance;font-weight:600}
+h1{font-size:1.6rem;letter-spacing:-.01em}
+h2{font-size:1.1rem}
+h3{font-size:.95rem}
+p{margin:0}
+.mono,.code{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.code{font-weight:500;color:var(--accent);font-size:.85em}
+.muted{color:var(--ink-3)}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:600;margin-bottom:2px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Shell */
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100%}
+.side{background:var(--side);color:var(--side-ink);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:18px;padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;overflow-y:auto}
+.brand{display:flex;gap:10px;align-items:flex-start}
+.brand-mark{flex:none;width:34px;height:34px;border-radius:6px;background:var(--side-2);display:grid;place-items:center;font-family:var(--f-mono);font-weight:500;font-size:.8rem;color:#fff;border:1px solid rgba(255,255,255,.12)}
+.brand strong{display:block;color:#fff;font-size:.98rem;line-height:1.25}
+.brand span{display:block;font-size:.72rem;color:var(--side-ink-2);line-height:1.35;margin-top:3px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;color:var(--side-ink);text-decoration:none;cursor:pointer;font-weight:500}
+.nav a svg{flex:none;width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;opacity:.85}
+.nav a:hover{background:rgba(255,255,255,.06)}
+.nav a.on{background:var(--side-2);color:#fff}
+.nav .count{margin-left:auto;font-family:var(--f-mono);font-size:.75rem;background:rgba(255,255,255,.1);padding:0 7px;border-radius:10px}
+.side-foot{margin-top:auto;font-size:.74rem;color:var(--side-ink-2);display:flex;flex-direction:column;gap:8px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px}
+.side-foot .who{color:var(--side-ink);font-weight:500}
+.topbar{display:none}
+.main{min-width:0;padding-block:28px 48px;padding-left:max(16px,clamp(16px,3vw,40px));padding-right:max(16px,env(safe-area-inset-right,0px),clamp(16px,3vw,40px))}
+.view{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.scrim{display:none}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);padding:7px 13px;border-radius:6px;cursor:pointer;font-weight:500;white-space:nowrap;line-height:1.3}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{background:var(--accent-hover)}
+.btn.danger{background:var(--can-dot);border-color:var(--can-dot);color:#fff}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--accent)}
+.btn.ghost:hover{background:var(--accent-soft)}
+.btn.sm{padding:4px 10px;font-size:.84rem}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.side .btn.primary{background:#e9f4f6;color:#0f2e37;border-color:#e9f4f6;padding:10px 13px}
+.side .btn.primary:hover{background:#fff}
+.icon-btn{border:0;background:transparent;cursor:pointer;width:32px;height:32px;border-radius:6px;font-size:1.3rem;line-height:1;color:var(--ink-2)}
+.icon-btn:hover{background:var(--surface-2)}
+
+/* Page head */
+.page-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px}
+.page-head .acts{display:flex;flex-wrap:wrap;gap:8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.section{display:flex;flex-direction:column;gap:12px}
+.section-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px}
+.section-head .hint{font-size:.8rem;color:var(--ink-3)}
+
+/* Status */
+.st{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:500;padding:2px 9px 2px 8px;border-radius:20px;white-space:nowrap}
+.st::before{content:"";width:7px;height:7px;border-radius:50%}
+.st.PENDENTE{background:var(--pend-bg);color:var(--pend)}.st.PENDENTE::before{background:var(--pend-dot)}
+.st.APROVADO{background:var(--apr-bg);color:var(--apr)}.st.APROVADO::before{background:var(--apr-dot)}
+.st.CANCELADO{background:var(--can-bg);color:var(--can)}.st.CANCELADO::before{background:var(--can-dot)}
+.st.sm{font-size:.72rem;padding:1px 7px 1px 6px}
+.tag{display:inline-flex;align-items:center;font-size:.74rem;padding:1px 8px;border-radius:4px;background:var(--surface-2);color:var(--ink-2);white-space:nowrap;border:1px solid var(--line)}
+.tag.info{background:var(--info-bg);color:var(--info);border-color:transparent}
+.tag.due{background:var(--due-bg);color:var(--pend);border-color:var(--due-line)}
+.tag.retro{background:transparent;border-style:dashed;color:var(--ink-3)}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi:hover{border-color:var(--accent)}
+.kpi:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kpi-n{font-family:var(--f-mono);font-size:1.75rem;font-weight:500;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi-l{font-size:.82rem;color:var(--ink-2);line-height:1.3}
+.kpi.k-pend .kpi-n{color:var(--pend)} .kpi.k-apr .kpi-n{color:var(--apr)} .kpi.k-can .kpi-n{color:var(--can)}
+.kpi-group{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:600;grid-column:1/-1;margin-top:4px}
+
+.dash-cols{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;align-items:start}
+
+/* Lists */
+.plist{display:flex;flex-direction:column;gap:8px}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.prow.due{background:var(--due-bg);border-color:var(--due-line)}
+.prow-main{cursor:pointer;min-width:0;display:flex;flex-direction:column;gap:4px}
+.prow-top{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.prow-name{font-weight:600;overflow-wrap:anywhere}
+.prow-meta{display:flex;flex-wrap:wrap;gap:4px 18px;margin:2px 0 0;font-size:.8rem}
+.prow-meta div{display:flex;gap:5px}
+.prow-meta dt{color:var(--ink-3)} .prow-meta dd{margin:0;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.prow-acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.compact .prow{padding:10px 12px}
+
+.feed{display:flex;flex-direction:column}
+.feed-item{display:grid;grid-template-columns:96px minmax(0,1fr);gap:4px 12px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.feed-item:last-child{border-bottom:0}
+.feed-item:hover .feed-desc{color:var(--accent)}
+.feed-when{font-family:var(--f-mono);font-size:.78rem;color:var(--ink-3);line-height:1.35}
+.feed-desc{font-weight:500;font-size:.88rem}
+.feed-sub{font-size:.8rem;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+
+/* Table */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th{text-align:left;font-weight:600;font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);background:var(--surface-2);padding:9px 12px;white-space:nowrap;border-bottom:1px solid var(--line)}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover td{background:var(--accent-soft)}
+td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+td.dt{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:.82rem}
+td.wrap{min-width:220px;max-width:420px}
+td.nome{min-width:170px}
+td.mono{white-space:nowrap}
+td .sub{display:block;font-size:.76rem;color:var(--ink-3)}
+.tbl-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:.8rem;color:var(--ink-3)}
+
+/* Filters */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.search{flex:1 1 280px;position:relative;min-width:0}
+.search input{width:100%;padding-left:34px}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--ink-3);fill:none;stroke-width:2}
+.filters{padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px 16px}
+.filters .span2{grid-column:span 2}
+.range{display:flex;gap:6px;align-items:center}
+.range input{flex:1;min-width:0}
+.range span{color:var(--ink-3);font-size:.8rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line-2);background:var(--surface);padding:5px 12px;border-radius:20px;cursor:pointer;font-size:.84rem;font-weight:500;color:var(--ink-2);display:inline-flex;gap:6px;align-items:center}
+.chip .n{font-family:var(--f-mono);font-size:.78rem;color:var(--ink-3)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip.on .n{color:var(--accent-ink);opacity:.8}
+.active-note{font-size:.8rem;color:var(--ink-2);background:var(--accent-soft);padding:6px 10px;border-radius:6px}
+
+/* Forms */
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field>label,.lbl{font-size:.8rem;font-weight:600;color:var(--ink-2)}
+.field .req{color:var(--can-dot)}
+.field .help{font-size:.76rem;color:var(--ink-3)}
+input[type=text],input[type=date],input[type=datetime-local],input[type=search],select,textarea{width:100%;background:var(--surface);border:1px solid var(--line-2);border-radius:6px;padding:7px 10px;min-height:36px}
+textarea{min-height:76px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.form{padding:20px;display:flex;flex-direction:column;gap:22px}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;min-width:0}
+legend{font-weight:600;font-size:.95rem;padding:0;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:6px;overflow:hidden;flex-wrap:wrap}
+.seg label{display:flex;align-items:center;gap:6px;padding:7px 12px;cursor:pointer;font-weight:500;border-right:1px solid var(--line-2)}
+.seg label:last-child{border-right:0}
+.seg input{accent-color:var(--accent)}
+.seg label:has(input:checked){background:var(--accent-soft);color:var(--accent)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:6px;padding:10px 12px;cursor:pointer}
+.opt input{margin-top:3px;accent-color:var(--accent)}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opt strong{display:block;font-weight:600}
+.opt span{font-size:.8rem;color:var(--ink-2)}
+.subpanel{border-left:2px solid var(--accent);padding-left:14px;display:flex;flex-direction:column;gap:12px}
+.form-acts{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.form-err{background:var(--can-bg);color:var(--can);padding:8px 12px;border-radius:6px;font-size:.86rem}
+.form-warn{background:var(--due-bg);color:var(--pend);padding:8px 12px;border-radius:6px;font-size:.86rem;border:1px solid var(--due-line)}
+
+/* Ficha */
+.ficha-head{display:flex;flex-wrap:wrap;gap:14px 24px;justify-content:space-between;align-items:flex-start}
+.ficha-title{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ficha-title h1{overflow-wrap:anywhere}
+.ficha-ids{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:.9rem}
+.ficha-acts{display:flex;flex-wrap:wrap;gap:8px}
+.ficha-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:20px;align-items:start}
+.panel{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.dl{display:grid;grid-template-columns:minmax(120px,40%) minmax(0,1fr);gap:7px 14px;margin:0;font-size:.88rem}
+.dl dt{color:var(--ink-3)} .dl dd{margin:0;overflow-wrap:anywhere}
+.dl dd.mono{font-size:.84rem}
+.note{white-space:pre-wrap;font-size:.88rem;background:var(--surface-2);padding:10px 12px;border-radius:6px}
+.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ev{position:relative;padding:0 0 18px 26px}
+.ev::before{content:"";position:absolute;left:6px;top:8px;bottom:-4px;width:1px;background:var(--line-2)}
+.ev:last-child::before{display:none}
+.ev-dot{position:absolute;left:0;top:4px;width:13px;height:13px;border-radius:50%;background:var(--surface);border:2px solid var(--ink-3)}
+.ev.t-dev .ev-dot{border-color:var(--pend-dot)}
+.ev.t-cons .ev-dot{border-color:var(--info)}
+.ev.t-CORRIGIDO .ev-dot{background:var(--info);border-color:var(--info)}
+.ev.t-APROVACAO .ev-dot{background:var(--apr-dot);border-color:var(--apr-dot)}
+.ev.t-CANCELAMENTO .ev-dot{background:var(--can-dot);border-color:var(--can-dot)}
+.ev-body{display:flex;flex-direction:column;gap:4px;padding:8px 10px;margin:-8px -10px 0;border-radius:6px}
+.ev.hl .ev-body{background:var(--hl)}
+.ev-top{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.ev-when{font-family:var(--f-mono);font-size:.8rem;color:var(--ink-2)}
+.ev-type{font-weight:600}
+.ev-desc{white-space:pre-wrap;overflow-wrap:anywhere}
+.ev-obs{white-space:pre-wrap;font-size:.84rem;color:var(--ink-2)}
+.ev-meta{font-size:.76rem;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:4px 12px}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(10,24,28,.45);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));overflow-y:auto}
+.modal{background:var(--surface);border-radius:10px;width:100%;max-width:560px;box-shadow:var(--shadow);border:1px solid var(--line);display:flex;flex-direction:column;margin:auto 0}
+.modal header{display:flex;justify-content:space-between;gap:12px;padding:16px 18px 10px;border-bottom:1px solid var(--line)}
+.modal header p{font-size:.84rem;color:var(--ink-2);margin-top:3px}
+.mbody{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.modal footer{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;padding:12px 18px 16px;border-top:1px solid var(--line)}
+.modal footer:empty{display:none}
+.copybox{font-family:var(--f-mono);font-size:.76rem;min-height:180px}
+
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:60;font-weight:500;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+
+.empty{padding:28px 20px;text-align:center;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty strong{color:var(--ink);font-size:1rem}
+.banner{padding:12px 14px;border-radius:var(--r);background:var(--info-bg);color:var(--info);font-size:.86rem}
+.banner.warn{background:var(--due-bg);color:var(--pend)}
+.mtx td,.mtx th{text-align:right}
+.mtx td:first-child,.mtx th:first-child{text-align:left}
+.mtx tr.tot td{font-weight:600;background:var(--surface-2)}
+.ger-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+
+@media (max-width:1100px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dash-cols,.ficha-grid,.ger-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .topbar{display:flex;position:sticky;top:env(safe-area-inset-top,0px);z-index:30;align-items:center;gap:10px;background:var(--side);color:#fff;padding-block:10px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--side)}
+  .topbar .t{flex:1;font-weight:600;font-size:.95rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .topbar .icon-btn{color:#fff}
+  .topbar .icon-btn:hover{background:rgba(255,255,255,.1)}
+  .topbar .btn.primary{background:#e9f4f6;color:#0f2e37;border-color:#e9f4f6}
+  .side{position:fixed;left:0;top:0;bottom:0;width:min(290px,86vw);z-index:40;transform:translateX(-105%);transition:transform .2s ease;height:auto;padding-top:max(20px,env(safe-area-inset-top,0px))}
+  .side.open{transform:none}
+  .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:35}
+  .scrim[hidden]{display:none}
+  .main{padding-top:18px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  h1{font-size:1.35rem}
+  .grid2{grid-template-columns:minmax(0,1fr)}
+  .filters .span2{grid-column:auto}
+  .prow{grid-template-columns:minmax(0,1fr)}
+  .prow-acts{justify-content:flex-start}
+}
+@media (max-width:480px){
+  .kpi-n{font-size:1.45rem}
+  .feed-item{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){.side{transition:none}}
+
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%}
+.login{position:fixed;inset:0;z-index:70;background:var(--side);display:flex;align-items:center;justify-content:center;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));overflow-y:auto}
+.login-card{background:var(--surface);color:var(--ink);border-radius:12px;width:100%;max-width:420px;padding:28px 26px;display:flex;flex-direction:column;gap:18px;box-shadow:0 12px 40px rgba(0,0,0,.35);margin:auto 0}
+.login-brand{display:flex;gap:12px;align-items:flex-start}
+.login-brand .brand-mark{background:var(--side);border-color:transparent}
+.login-brand strong{display:block;font-size:1.1rem;line-height:1.25}
+.login-brand span{display:block;font-size:.78rem;color:var(--ink-3);line-height:1.35;margin-top:3px}
+.login form,.login .lp{display:flex;flex-direction:column;gap:14px}
+.login h2{font-size:1rem}
+.login p{font-size:.88rem;color:var(--ink-2)}
+.login input[type=email],.login input[type=password],.login input[type=text]{width:100%;background:var(--surface);border:1px solid var(--line-2);border-radius:6px;padding:9px 11px;min-height:40px}
+.login .btn.primary{padding:10px 13px}
+.login-links{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px}
+.login-msg{font-size:.86rem;padding:8px 12px;border-radius:6px}
+.login-msg.err{background:var(--can-bg);color:var(--can)}
+.login-msg.ok{background:var(--apr-bg);color:var(--apr)}
+.login-foot{font-size:.76rem;color:var(--ink-3);line-height:1.45}
+.side-foot .sair{all:unset;cursor:pointer;color:var(--side-ink);text-decoration:underline;text-underline-offset:2px;font-size:.78rem;align-self:flex-start}
+.side-foot .sair:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.tag.adm{background:var(--accent-soft);color:var(--accent);border-color:transparent;font-weight:600}
+.eq-acts{display:flex;flex-wrap:wrap;gap:6px}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <button class="icon-btn" id="menuBtn" type="button" aria-label="Abrir menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <span class="t">Controle de Relatórios</span>
+    <button class="btn primary sm needs-write" type="button" data-act="novo">+ Cadastrar</button>
+  </header>
+
+  <aside class="side" id="side">
+    <div class="brand">
+      <div class="brand-mark">CR</div>
+      <div><strong>Controle de Relatórios</strong><span>Escritório de Diárias, Passagens e Atividades Externas · Gabinete da Presidência · Coren-PE</span></div>
+    </div>
+    <button class="btn primary block needs-write" type="button" data-act="novo">+ Cadastrar relatório</button>
+    <nav class="nav" aria-label="Navegação principal">
+      <a data-nav="dashboard" href="#dashboard"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</a>
+      <a data-nav="relatorios" href="#relatorios"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>Relatórios<span class="count" id="cTot"></span></a>
+      <a data-nav="pendencias" href="#pendencias"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Pendências de alteração<span class="count" id="cPend"></span></a>
+      <a data-nav="historico" href="#historico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Histórico de movimentações</a>
+      <a data-nav="gerencial" href="#gerencial"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Relatórios gerenciais</a>
+      <a data-nav="equipe" href="#equipe"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.3 3.3 0 0 1 0 6.4M18.5 14.8c1.6.8 2.6 2.5 3 5.2"/></svg>Equipe</a>
+    </nav>
+    <div class="side-foot">
+      <span class="who" id="who"></span>
+      <button type="button" class="sair" id="sair">Sair do sistema</button>
+      <span>Controle auxiliar. O SCDP permanece como sistema oficial; todas as consultas são registradas manualmente.</span>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <main class="main"><div class="view" id="view"><div class="empty"><strong>Carregando…</strong></div></div></main>
+</div>
+
+
+<div class="login" id="login" hidden>
+  <div class="login-card">
+    <div class="login-brand"><div class="brand-mark">CR</div>
+      <div><strong>Controle de Relatórios</strong><span>Escritório de Diárias, Passagens e Atividades Externas · Gabinete da Presidência · Coren-PE</span></div></div>
+
+    <form id="lp-entrar" class="lp" novalidate>
+      <div class="field"><label for="l-email">E-mail</label><input type="email" id="l-email" autocomplete="username" required></div>
+      <div class="field"><label for="l-senha">Senha</label><input type="password" id="l-senha" autocomplete="current-password" required></div>
+      <div class="login-msg" id="l-msg" hidden></div>
+      <button type="submit" class="btn primary block" id="l-btn">Entrar</button>
+      <div class="login-links">
+        <button type="button" class="btn ghost sm" id="l-novo">Primeiro acesso</button>
+        <button type="button" class="btn ghost sm" id="l-reset">Esqueci minha senha</button>
+      </div>
+    </form>
+
+    <form id="lp-novo" class="lp" novalidate hidden>
+      <h2>Primeiro acesso</h2>
+      <p>Use o e-mail que o administrador incluiu na equipe e crie a sua senha.</p>
+      <div class="field"><label for="n-email">E-mail</label><input type="email" id="n-email" autocomplete="username" required></div>
+      <div class="field"><label for="n-senha">Crie uma senha</label><input type="password" id="n-senha" autocomplete="new-password" required>
+        <span class="help">Mínimo de 12 caracteres, com letra maiúscula, letra minúscula, número e símbolo.</span></div>
+      <div class="field"><label for="n-senha2">Repita a senha</label><input type="password" id="n-senha2" autocomplete="new-password" required></div>
+      <div class="login-msg" id="n-msg" hidden></div>
+      <button type="submit" class="btn primary block" id="n-btn">Criar minha senha</button>
+      <button type="button" class="btn ghost sm" data-painel="entrar" style="align-self:center">Voltar para Entrar</button>
+    </form>
+
+    <div id="lp-verif" class="lp" hidden>
+      <h2>Confirme seu e-mail</h2>
+      <p id="v-txt"></p>
+      <div class="login-msg" id="v-msg" hidden></div>
+      <button type="button" class="btn primary block" id="v-ok">Já confirmei, entrar</button>
+      <div class="login-links">
+        <button type="button" class="btn ghost sm" id="v-enviar">Enviar o link novamente</button>
+        <button type="button" class="btn ghost sm" id="v-sair">Sair</button>
+      </div>
+    </div>
+
+    <form id="lp-init" class="lp" novalidate hidden>
+      <h2>Configuração inicial</h2>
+      <p>Este é o primeiro acesso ao sistema. Você será o administrador da equipe e poderá incluir os demais perfis.</p>
+      <div class="field"><label for="i-nome">Seu nome (aparece em “Registrado por” no histórico)</label><input type="text" id="i-nome" maxlength="80" required></div>
+      <div class="login-msg" id="i-msg" hidden></div>
+      <button type="submit" class="btn primary block" id="i-btn">Concluir e entrar</button>
+    </form>
+
+    <p class="login-foot">Acesso restrito à equipe autorizada. Controle auxiliar: o SCDP permanece como sistema oficial.</p>
+  </div>
+</div>
+<div id="modal" class="overlay" hidden></div>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script>
+"use strict";
+/* ============ Constantes ============ */
+const TIPOS = {
+  CADASTRO:     { l: "Cadastro inicial" },
+  ENVIO:        { l: "Envio ao solicitante para alteração", dev: true },
+  CONSULTA:     { l: "Consulta ao SCDP", cons: true },
+  NAO_SANADA:   { l: "Pendência ainda não sanada", cons: true },
+  CORRIGIDO:    { l: "Relatório corrigido identificado no SCDP", cons: true },
+  NOVA_DEV:     { l: "Nova devolução para alteração", dev: true },
+  APROVACAO:    { l: "Aprovação" },
+  CANCELAMENTO: { l: "Cancelamento" },
+  ATUALIZACAO:  { l: "Atualização cadastral relevante" }
+};
+const ST = { PENDENTE: "Pendente de alteração", APROVADO: "Aprovado", CANCELADO: "Cancelado" };
+const MOD = { DIARIA: "Diária", AUXILIO: "Auxílio-representação" };
+const CAMPOS = [
+  ["protocolo", "Nº Processo SEI"], ["solicitante", "Solicitante"],
+  ["modalidade", "Modalidade"],
+  ["dataInicio", "Data inicial da atividade"], ["dataFim", "Data final da atividade"], ["observacoes", "Observações internas"]
+];
+const COL = "relatorios";
+
+/* ============ Estado ============ */
+const S = {
+  db: null, user: null, dl: null, uid: null, canWrite: true,
+  reports: [], loaded: false, names: {}, me: "",
+  view: "dashboard", fichaId: null, fichaHL: null, editId: null, back: "relatorios",
+  f: null, pendTab: "todas", hf: null, gA: "", gB: "", gOnlyPer: false,
+  dA: "", dB: "", dashDueFirst: true, ordc: 0, mSubmit: null, dupOk: false
+};
+function filtrosVazios() {
+  return { q: "", sol: "", ben: "", prot: "", mod: "", st: "", dev: "",
+    cadA: "", cadB: "", atvA: "", atvB: "", envA: "", envB: "",
+    perA: "", perB: "", sort: "cadastro", dir: "desc" };
+}
+S.f = filtrosVazios();
+S.hf = { a: "", b: "", tipo: "", mod: "", q: "" };
+
+/* ============ Utilidades ============ */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pad = n => String(n).padStart(2, "0");
+function agora() { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function hoje() { return agora().slice(0, 10); }
+function inicioMes() { return hoje().slice(0, 8) + "01"; }
+function fData(s) { if (!s) return "—"; const [y, m, d] = String(s).slice(0, 10).split("-"); return `${d}/${m}/${y}`; }
+function fDH(s, semHora) { if (!s) return "—"; const h = String(s).slice(11, 16); return fData(s) + (!semHora && h && h !== "00:00" ? " " + h : ""); }
+function fEv(e) { return fDH(e.dataHora, e.semHora); }
+function norm(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim(); }
+function gid() { return "r" + Math.random().toString(36).slice(2, 9) + Date.now().toString(36); }
+function sei(r) { return r.protocolo ? "SEI " + r.protocolo : ""; }
+function seiHtml(r) { return r.protocolo ? `<span class="mono">SEI ${esc(r.protocolo)}</span>` : ""; }
+function inR(d, a, b) { if (!a && !b) return true; if (!d) return false; const x = String(d).slice(0, 10); return (!a || x >= a) && (!b || x <= b); }
+function overlap(i, f, a, b) { if (!a && !b) return true; if (!i && !f) return false; const ini = i || f, fim = f || i; return (!b || ini <= b) && (!a || fim >= a); }
+function menos(dt, min) { const d = new Date(dt); d.setMinutes(d.getMinutes() - min); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function atividade(r) { if (!r.dataInicio && !r.dataFim) return "—"; if (!r.dataFim || r.dataFim === r.dataInicio) return fData(r.dataInicio || r.dataFim); return fData(r.dataInicio) + " a " + fData(r.dataFim); }
+function nomeEv(e) { return e.usuarioNome || nomeU(e.usuario); }
+function nomeU(id) { if (!id) return "—"; return S.names[id] || (id === S.uid ? (S.me || "Você") : "Usuário"); }
+function stBadge(s, sm) { return `<span class="st ${s} ${sm ? "sm" : ""}">${esc(ST[s] || s)}</span>`; }
+function plural(n, a, b) { return n === 1 ? a : b; }
+
+/* ============ Derivações (sempre calculadas a partir do histórico) ============ */
+function hist(r) {
+  return [...(r.historico || [])].sort((a, b) => a.dataHora < b.dataHora ? -1 : a.dataHora > b.dataHora ? 1 : (a.ord || 0) - (b.ord || 0));
+}
+function derive(r) {
+  const h = hist(r);
+  let iDev = -1; const devs = [], cons = [];
+  h.forEach((e, i) => { const t = TIPOS[e.tipo] || {}; if (t.dev) { devs.push(e); iDev = i; } if (t.cons) cons.push(e); });
+  const consApos = h.slice(iDev + 1).filter(e => (TIPOS[e.tipo] || {}).cons);
+  const pend = r.status === "PENDENTE";
+  const acomp = h.filter(e => { const t = TIPOS[e.tipo] || {}; return t.dev || t.cons; });
+  const ultAcomp = acomp[acomp.length - 1];
+  const prox = pend && ultAcomp && ultAcomp.proximaConsulta ? ultAcomp.proximaConsulta : null;
+  return {
+    h, qtdDev: devs.length,
+    primeiroEnvio: devs[0] ? devs[0].dataHora : null,
+    ultimoEnvio: devs.length ? devs[devs.length - 1].dataHora : null,
+    ultimaConsulta: cons.length ? cons[cons.length - 1].dataHora : null,
+    ultimaMov: h.length ? h[h.length - 1].dataHora : null,
+    semConsulta: pend && devs.length > 0 && consApos.length === 0,
+    corrigidoAguardando: pend && consApos.some(e => e.tipo === "CORRIGIDO"),
+    prox, proxChegou: !!prox && prox <= hoje()
+  };
+}
+
+/* ============ Persistência ============ */
+const filas = {};
+function corpo(r) {
+  const d = derive(r);
+  const { id, ...b } = r;
+  b.dataPrimeiroEnvio = d.primeiroEnvio; b.dataUltimaDevolucao = d.ultimoEnvio;
+  delete b.dataUltimaConsulta; delete b.dataUltimaMovimentacao; delete b.beneficiario; delete b.descricao;
+  b.qtdDevolucoes = d.qtdDev; b.proximaConsultaSugerida = d.prox;
+  return JSON.parse(JSON.stringify(b));
+}
+function salvar(r) {
+  const body = corpo(r);
+  const run = () => S.db.collection(COL).doc(r.id).set(body);
+  const p = (filas[r.id] || Promise.resolve()).then(run, run);
+  filas[r.id] = p.catch(() => {});
+  return p;
+}
+function aplicarLocal(r) {
+  const i = S.reports.findIndex(x => x.id === r.id);
+  if (i >= 0) S.reports[i] = r; else S.reports.push(r);
+  atualizar();
+}
+async function gravar(r, msg) {
+  try {
+    await salvar(r);
+    aplicarLocal(r);
+    if (msg) toast(msg);
+    return true;
+  } catch (e) {
+    tratarErroEscrita(e);
+    return false;
+  }
+}
+function tratarErroEscrita(e) {
+  const c = e && e.code;
+  if (c === "permission-denied" || c === "invalid_argument" || c === "not_granted") { S.canWrite = false; aplicarPermissoes(); toast("Seu acesso permite apenas consulta. O registro não foi salvo."); }
+  else if (c === "quota_exceeded" || c === "resource-exhausted") toast("Limite de armazenamento atingido. O registro não foi salvo.");
+  else toast("Não foi possível salvar agora. Verifique a conexão e tente novamente.");
+  console.error(e);
+}
+async function alterar(id, fn, msg) {
+  const cur = S.reports.find(x => x.id === id);
+  if (!cur) { toast("Registro não encontrado."); return false; }
+  const r = structuredClone(cur);
+  r.historico = r.historico ? [...r.historico] : [];
+  const res = fn(r);
+  if (res === false) return false;
+  return gravar(r, msg);
+}
+function addEv(r, tipo, o = {}) {
+  const now = agora();
+  const ev = {
+    id: gid(), tipo, dataHora: o.dataHora || now, lancadoEm: now, ord: Date.now() + (S.ordc++),
+    descricao: o.descricao || "", observacoes: o.observacoes || "", statusNoMomento: r.status,
+    usuario: S.uid || null, usuarioNome: S.me || "", retrospectivo: !!o.retro, semHora: !!o.semHora
+  };
+  ev.dataAjustada = !o.retro && ev.dataHora < menos(now, 10);
+  if (o.extra) Object.assign(ev, o.extra);
+  r.historico.push(ev);
+  return ev;
+}
+
+/* ============ Exportação ============ */
+let xlsxP = null;
+function carregarXLSX() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  if (!xlsxP) xlsxP = new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+    s.onload = () => res(window.XLSX); s.onerror = () => { xlsxP = null; rej(new Error("xlsx")); };
+    document.head.appendChild(s);
+  });
+  return xlsxP;
+}
+function csvDe(rows) {
+  return "﻿" + rows.map(r => r.map(v => { const s = String(v ?? ""); return /[;"\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(";")).join("\r\n");
+}
+async function exportar(base, folhas, fmt) {
+  const stamp = hoje().split("-").reverse().join("-");
+  if (fmt === "csv") {
+    let rows = [];
+    if (folhas.length === 1) rows = folhas[0].rows;
+    else folhas.forEach((f, i) => { if (i) rows.push([]); rows.push([f.name]); rows.push(...f.rows); });
+    return salvarArquivo(`${base}_${stamp}.csv`, csvDe(rows), rows);
+  }
+  try {
+    const X = await carregarXLSX();
+    const wb = X.utils.book_new();
+    folhas.forEach(f => {
+      const ws = X.utils.aoa_to_sheet(f.rows);
+      ws["!cols"] = (f.rows[0] || []).map((_, c) => ({ wch: Math.min(60, Math.max(10, ...f.rows.slice(0, 200).map(r => String(r[c] ?? "").length + 2))) }));
+      X.utils.book_append_sheet(wb, ws, f.name.slice(0, 31));
+    });
+    const buf = X.write(wb, { type: "array", bookType: "xlsx" });
+    return salvarArquivo(`${base}_${stamp}.xlsx`, buf, null);
+  } catch (e) {
+    toast("Não foi possível gerar o Excel agora. Tente exportar em CSV.");
+  }
+}
+async function salvarArquivo(nome, data, rows) {
+  if (S.dl) {
+    try { await S.dl.save({ filename: nome, data }); toast("Arquivo gerado: " + nome); return; }
+    catch (e) {
+      if (e && e.code === "declined") { toast("Download cancelado."); return; }
+      if (e && e.code === "rate_limited") { toast("Aguarde a confirmação do download anterior."); return; }
+    }
+  }
+  if (rows) {
+    openModal({
+      title: "Copiar dados exportados",
+      sub: "O download direto não está disponível nesta visualização. Copie o conteúdo abaixo e cole em uma planilha (separador ponto e vírgula).",
+      body: `<textarea class="copybox" id="cpTxt" readonly>${esc(csvDe(rows).slice(1))}</textarea>`,
+      footer: `<button type="button" class="btn" data-act="mclose">Fechar</button><button type="button" class="btn primary" data-act="copiar">Copiar</button>`
+    });
+  } else toast("O download não está disponível nesta visualização. Use a exportação CSV.");
+}
+function linhasRegistros(itens, comPer) {
+  const head = ["Nº Processo SEI", "Solicitante", "Modalidade", "Início da atividade", "Fim da atividade", "Data do cadastro", "Primeiro envio p/ alteração", "Último envio p/ alteração", "Próxima consulta sugerida", "Qtd. devoluções", "Status", "Observações internas", "Justificativa de cancelamento"];
+  if (comPer) head.push("Movimentações no período");
+  const rows = [head];
+  itens.forEach(({ r, d, nPer }) => {
+    const row = [r.protocolo, r.solicitante, MOD[r.modalidade] || "", fData(r.dataInicio).replace("—", ""), fData(r.dataFim).replace("—", ""),
+      fDH(r.dataCadastro), d.primeiroEnvio ? fDH(d.primeiroEnvio) : "", d.ultimoEnvio ? fDH(d.ultimoEnvio) : "",
+      d.prox ? fData(d.prox) : "", d.qtdDev, ST[r.status], r.observacoes, r.justificativaCancelamento];
+    if (comPer) row.push(nPer || 0);
+    rows.push(row);
+  });
+  return rows;
+}
+function linhasHistorico(evs) {
+  const rows = [["Data e hora", "Nº Processo SEI", "Solicitante", "Modalidade", "Tipo de evento", "Descrição", "Observações", "Status no registro", "Status atual", "Registrado por", "Registro retrospectivo", "Lançado em"]];
+  evs.forEach(({ e, r }) => rows.push([fEv(e), r.protocolo, r.solicitante, MOD[r.modalidade] || "", TIPOS[e.tipo] ? TIPOS[e.tipo].l : e.tipo, e.descricao, e.observacoes,
+    ST[e.statusNoMomento] || "", ST[r.status], nomeEv(e), e.retrospectivo ? "Sim" : "Não", fDH(e.lancadoEm)]));
+  return rows;
+}
+
+/* ============ Filtros ============ */
+function filtrar(f) {
+  const out = [];
+  for (const r of S.reports) {
+    const d = derive(r);
+    if (f.q) { const t = norm(f.q); const hay = norm([r.protocolo, r.solicitante, r.observacoes].join(" ")); if (!hay.includes(t)) continue; }
+    if (f.sol && !norm(r.solicitante).includes(norm(f.sol))) continue;
+    if (f.prot && !norm(r.protocolo).includes(norm(f.prot))) continue;
+    if (f.mod && r.modalidade !== f.mod) continue;
+    if (f.st && r.status !== f.st) continue;
+    if (f.dev === "0" && d.qtdDev !== 0) continue;
+    if (f.dev === "1" && d.qtdDev !== 1) continue;
+    if (f.dev === "2" && d.qtdDev < 2) continue;
+    if (f.dev === "3" && d.qtdDev < 3) continue;
+    if (!inR(r.dataCadastro, f.cadA, f.cadB)) continue;
+    if (!overlap(r.dataInicio, r.dataFim, f.atvA, f.atvB)) continue;
+    if (!inR(d.ultimoEnvio, f.envA, f.envB)) continue;
+    let nPer = 0;
+    if (f.perA || f.perB) { nPer = d.h.filter(e => inR(e.dataHora, f.perA, f.perB)).length; if (!nPer) continue; }
+    out.push({ r, d, nPer });
+  }
+  const key = { ultimoEnvio: x => x.d.ultimoEnvio, cadastro: x => x.r.dataCadastro, solicitante: x => norm(x.r.solicitante) }[f.sort] || (x => x.r.dataCadastro);
+  const dir = f.dir === "asc" ? 1 : -1;
+  out.sort((a, b) => { const ka = key(a), kb = key(b); if (!ka && !kb) return 0; if (!ka) return 1; if (!kb) return -1; return ka < kb ? -dir : ka > kb ? dir : 0; });
+  return out;
+}
+function filtrosAtivos(f) { return Object.keys(f).filter(k => !["sort", "dir"].includes(k) && f[k]).length; }
+
+/* ============ Navegação ============ */
+const VIEWS = ["dashboard", "relatorios", "pendencias", "historico", "gerencial", "equipe"];
+function go(view, opts = {}) {
+  if (VIEWS.includes(S.view)) S.back = S.view;
+  S.view = view;
+  if (view === "ficha") { S.fichaId = opts.id; S.fichaHL = opts.hl || null; }
+  if (view === "form") { S.editId = opts.id || null; S.dupOk = false; }
+  document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("on", a.dataset.nav === view || (view === "ficha" && a.dataset.nav === S.back)));
+  fecharMenu();
+  renderView();
+  window.scrollTo(0, 0);
+}
+function renderView() {
+  const V = $("#view");
+  if (!S.db) return;
+  if (!S.loaded) { V.innerHTML = `<div class="empty"><strong>Carregando registros…</strong></div>`; return; }
+  const fns = { dashboard: vDashboard, relatorios: vRelatorios, pendencias: vPendencias, historico: vHistorico, gerencial: vGerencial, equipe: vEquipe, ficha: vFicha, form: vForm };
+  V.innerHTML = (fns[S.view] || vDashboard)();
+  renderRes();
+  aplicarPermissoes();
+}
+function renderRes() {
+  const R = $("#res");
+  const fns = { dashboard: rDashboard, relatorios: rRelatorios, pendencias: rPendencias, historico: rHistorico, gerencial: rGerencial, equipe: rEquipe };
+  if (R && fns[S.view]) { R.innerHTML = fns[S.view](); aplicarPermissoes(); }
+}
+function atualizar() {
+  const pend = S.reports.filter(r => r.status === "PENDENTE").length;
+  $("#cTot").textContent = S.reports.length || ""; $("#cPend").textContent = pend || "";
+  if (S.view === "ficha") renderView();
+  else if (S.view !== "form") renderRes();
+}
+function aplicarPermissoes() { document.querySelectorAll(".needs-write").forEach(el => el.hidden = !S.canWrite); }
+
+/* ============ Componentes ============ */
+function flags(d) {
+  let s = "";
+  if (d.corrigidoAguardando) s += `<span class="tag info">Correção identificada · aguardando análise</span>`;
+  else if (d.semConsulta) s += `<span class="tag">Sem consulta após a última devolução</span>`;
+  if (d.prox) s += `<span class="tag ${d.proxChegou ? "due" : ""}">Consultar ${d.prox === hoje() ? "hoje" : "em " + fData(d.prox)}</span>`;
+  if (d.qtdDev >= 2) s += `<span class="tag">${d.qtdDev}ª devolução</span>`;
+  return s;
+}
+function pRow({ r, d }, compact) {
+  return `<article class="prow ${d.proxChegou ? "due" : ""}">
+    <div class="prow-main" data-act="ficha" data-id="${r.id}" role="link" tabindex="0">
+      <div class="prow-top">${seiHtml(r)}${flags(d)}</div>
+      <div class="prow-name">${esc(r.solicitante)} <span class="muted" style="font-weight:400">· ${esc(MOD[r.modalidade] || "")}</span></div>
+      <dl class="prow-meta">
+        <div><dt>Último envio</dt><dd>${fDH(d.ultimoEnvio)}</dd></div>
+        ${compact ? "" : `<div><dt>Devoluções</dt><dd>${d.qtdDev}</dd></div><div><dt>Atividade</dt><dd>${atividade(r)}</dd></div>`}
+      </dl>
+    </div>
+    <div class="prow-acts needs-write">
+      <button class="btn sm primary" data-act="consulta" data-id="${r.id}">Consulta SCDP</button>
+      ${compact ? "" : `<button class="btn sm" data-act="devolucao" data-id="${r.id}">Nova devolução</button><button class="btn sm" data-act="aprovar" data-id="${r.id}">Aprovar</button>`}
+    </div>
+  </article>`;
+}
+function emptyState(t, s, btn) {
+  return `<div class="card empty"><strong>${t}</strong><span>${s}</span>${btn ? `<button class="btn primary needs-write" data-act="novo">+ Cadastrar relatório</button>` : ""}</div>`;
+}
+function fld(id, label, input, opts = {}) {
+  return `<div class="field ${opts.cls || ""}"><label for="${id}">${label}${opts.req ? ' <span class="req">*</span>' : ""}</label>${input}${opts.help ? `<span class="help">${opts.help}</span>` : ""}</div>`;
+}
+function rangeF(k, label) {
+  return `<div class="field"><span class="lbl">${label}</span><div class="range"><input type="date" id="f-${k}A" data-f="${k}A" value="${esc(S.f[k + "A"])}" aria-label="${label} — de"><span>até</span><input type="date" id="f-${k}B" data-f="${k}B" value="${esc(S.f[k + "B"])}" aria-label="${label} — até"></div></div>`;
+}
+function selOpts(map, cur, todos) { return `<option value="">${todos}</option>` + Object.entries(map).map(([k, v]) => `<option value="${k}" ${cur === k ? "selected" : ""}>${esc(v)}</option>`).join(""); }
+
+/* ============ Dashboard ============ */
+function vDashboard() {
+  if (!S.dA && !S.dB) { S.dA = inicioMes(); S.dB = hoje(); }
+  return `<div class="page-head"><div><p class="eyebrow">Visão geral</p><h1>Dashboard</h1></div>
+    <div class="field"><span class="lbl">Período das movimentações</span><div class="range"><input type="date" id="dA" value="${S.dA}" aria-label="Período — de"><span>até</span><input type="date" id="dB" value="${S.dB}" aria-label="Período — até"></div></div></div>
+    <div id="res"></div>`;
+}
+function rDashboard() {
+  const all = S.reports.map(r => ({ r, d: derive(r) }));
+  if (!all.length) return emptyState("Nenhum relatório cadastrado.", "Os indicadores serão calculados a partir dos registros que você cadastrar.", true);
+  const c = k => all.filter(k).length;
+  let movs = 0; all.forEach(x => x.d.h.forEach(e => { if (inR(e.dataHora, S.dA, S.dB)) movs++; }));
+  const per = (S.dA || S.dB) ? `${S.dA ? fData(S.dA) : "início"} a ${S.dB ? fData(S.dB) : "hoje"}` : "todo o período";
+  const kpi = (k, n, l, cls = "") => `<button class="kpi ${cls}" data-act="kpi" data-k="${k}"><span class="kpi-n">${n}</span><span class="kpi-l">${l}</span></button>`;
+  let pend = all.filter(x => x.r.status === "PENDENTE").sort((a, b) => (a.d.ultimoEnvio || "9") < (b.d.ultimoEnvio || "9") ? -1 : 1);
+  const due = pend.filter(x => x.d.proxChegou).length;
+  if (S.dashDueFirst) pend = [...pend.filter(x => x.d.proxChegou), ...pend.filter(x => !x.d.proxChegou)];
+  const evs = [];
+  all.forEach(({ r }) => (r.historico || []).forEach(e => evs.push({ e, r })));
+  evs.sort((a, b) => (b.e.lancadoEm + String(b.e.ord).padStart(16, "0")).localeCompare(a.e.lancadoEm + String(a.e.ord).padStart(16, "0")));
+  return `<div class="kpis">
+      ${kpi("total", all.length, "Relatórios cadastrados")}
+      ${kpi("pend", c(x => x.r.status === "PENDENTE"), "Pendentes de alteração", "k-pend")}
+      ${kpi("apr", c(x => x.r.status === "APROVADO"), "Aprovados", "k-apr")}
+      ${kpi("can", c(x => x.r.status === "CANCELADO"), "Cancelados", "k-can")}
+      ${kpi("semcons", c(x => x.d.semConsulta), "Pendências sem consulta registrada após a última devolução")}
+      ${kpi("corr", c(x => x.d.corrigidoAguardando), "Alteração identificada, análise ainda não concluída")}
+      ${kpi("dev2", c(x => x.d.qtdDev >= 2), "Relatórios com duas ou mais devoluções")}
+      ${kpi("mov", movs, "Movimentações no período: " + per)}
+    </div>
+    <div class="dash-cols">
+      <section class="section">
+        <div class="section-head"><h2>Pendências para acompanhamento</h2>
+          <label class="hint" style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="dueFirst" ${S.dashDueFirst ? "checked" : ""}> Destacar consultas sugeridas para hoje ou antes${due ? ` (${due})` : ""}</label></div>
+        ${pend.length ? `<div class="plist compact">${pend.slice(0, 8).map(x => pRow(x, true)).join("")}</div>
+          ${pend.length > 8 ? `<button class="btn ghost" data-nav-go="pendencias">Ver todas as ${pend.length} pendências</button>` : ""}`
+          : `<div class="card empty"><span>Nenhuma pendência de alteração no momento.</span></div>`}
+        <p class="hint" style="font-size:.78rem;color:var(--ink-3)">Ordenadas pela data do último envio para alteração (mais antigo primeiro). Não há prazos automáticos.</p>
+      </section>
+      <section class="section">
+        <div class="section-head"><h2>Movimentações recentes</h2><button class="btn ghost sm" data-nav-go="historico">Ver histórico</button></div>
+        <div class="card" style="padding:4px 16px"><div class="feed">
+          ${evs.slice(0, 10).map(({ e, r }) => `<div class="feed-item" data-act="ficha" data-id="${r.id}">
+            <span class="feed-when">${fEv(e)}</span>
+            <div style="min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span class="feed-desc">${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].l : e.tipo)}</span>
+              <span class="feed-sub"><span>${esc(r.solicitante)}</span>${seiHtml(r)}${stBadge(r.status, true)}</span>
+            </div></div>`).join("") || `<div class="empty"><span>Sem movimentações.</span></div>`}
+        </div></div>
+      </section>
+    </div>`;
+}
+
+/* ============ Relatórios (lista) ============ */
+function vRelatorios() {
+  const f = S.f;
+  const n = filtrosAtivos(f);
+  return `<div class="page-head"><div><p class="eyebrow">Demandas sob controle</p><h1>Relatórios</h1></div>
+    <div class="acts">
+      <button class="btn" data-act="exp-reg" data-fmt="xlsx">Exportar Excel</button>
+      <button class="btn" data-act="exp-reg" data-fmt="csv">Exportar CSV</button>
+      <button class="btn" data-act="exp-hist-f" data-fmt="xlsx">Exportar histórico (Excel)</button>
+      <button class="btn" data-act="exp-hist-f" data-fmt="csv">Histórico (CSV)</button>
+    </div></div>
+  <div class="toolbar">
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="f-q" data-f="q" placeholder="Pesquisar por solicitante, nº do processo SEI ou observações" value="${esc(f.q)}" aria-label="Pesquisa textual"></div>
+    <button class="btn" data-act="toggle-filtros" aria-expanded="${S.showF ? "true" : "false"}">Filtros${n ? ` (${n})` : ""}</button>
+    <button class="btn ghost" data-act="limpar">Limpar filtros</button>
+  </div>
+  <div class="card filters" id="filtros" ${S.showF ? "" : "hidden"}>
+    ${fld("f-sol", "Solicitante", `<input type="text" id="f-sol" data-f="sol" value="${esc(f.sol)}">`)}
+    ${fld("f-prot", "Nº Processo SEI", `<input type="text" id="f-prot" data-f="prot" value="${esc(f.prot)}">`)}
+    ${fld("f-mod", "Modalidade", `<select id="f-mod" data-f="mod">${selOpts(MOD, f.mod, "Todas")}</select>`)}
+    ${fld("f-st", "Status", `<select id="f-st" data-f="st">${selOpts(ST, f.st, "Todos")}</select>`)}
+    ${fld("f-dev", "Quantidade de devoluções", `<select id="f-dev" data-f="dev">${selOpts({ "0": "Nenhuma", "1": "Exatamente 1", "2": "2 ou mais", "3": "3 ou mais" }, f.dev, "Qualquer")}</select>`)}
+    ${rangeF("per", "Período de movimentações (histórico)")}
+    ${rangeF("cad", "Data do cadastro")}
+    ${rangeF("atv", "Data da atividade")}
+    ${rangeF("env", "Data do último envio p/ alteração")}
+  </div>
+  <div class="toolbar">
+    <label class="lbl" for="f-sort">Ordenar por</label>
+    <select id="f-sort" data-f="sort" style="width:auto">${selOpts({ cadastro: "Data do cadastro", ultimoEnvio: "Data do último envio p/ alteração", solicitante: "Solicitante" }, f.sort, "—").replace('<option value="">—</option>', "")}</select>
+    <button class="btn sm" data-act="dir">${f.dir === "asc" ? "↑ Crescente" : "↓ Decrescente"}</button>
+  </div>
+  <div id="res"></div>`;
+}
+function rRelatorios() {
+  const f = S.f;
+  if (!S.reports.length) return emptyState("Nenhum relatório cadastrado.", "Cadastre a primeira demanda para iniciar o controle.", true);
+  const itens = filtrar(f);
+  const per = f.perA || f.perB;
+  const perTxt = per ? `${f.perA ? fData(f.perA) : "início"} a ${f.perB ? fData(f.perB) : "hoje"}` : "";
+  if (!itens.length) return `<div class="card empty"><strong>Nenhum relatório corresponde aos filtros.</strong><button class="btn" data-act="limpar">Limpar filtros</button></div>`;
+  return `${per ? `<div class="active-note">Exibindo relatórios com movimentações entre ${perTxt}. Cada relatório aparece uma vez; abra a ficha para ver os eventos do período destacados.</div>` : ""}
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Solicitante</th><th>Nº Processo SEI</th><th>Modalidade</th><th>Atividade</th><th>Cadastro</th><th>Últ. envio p/ alteração</th><th class="num">Devol.</th><th>Status</th></tr></thead>
+    <tbody>${itens.map(({ r, d, nPer }) => `<tr class="click" data-act="ficha" data-id="${r.id}" ${per ? `data-hl="1"` : ""}>
+      <td class="nome">${esc(r.solicitante)}${per ? `<span class="sub">${nPer} ${plural(nPer, "movimentação", "movimentações")} no período</span>` : ""}</td>
+      <td class="mono">${r.protocolo ? esc(r.protocolo) : `<span class="muted">—</span>`}</td>
+      <td>${esc(MOD[r.modalidade] || "")}</td>
+      <td class="dt">${atividade(r)}</td>
+      <td class="dt">${fData(r.dataCadastro)}</td>
+      <td class="dt">${fDH(d.ultimoEnvio)}</td>
+      <td class="num">${d.qtdDev}</td>
+      <td>${stBadge(r.status)}</td></tr>`).join("")}</tbody></table></div>
+  <div class="tbl-foot"><span>${itens.length} de ${S.reports.length} ${plural(S.reports.length, "relatório", "relatórios")}</span><span>Clique em uma linha para abrir a ficha completa.</span></div>`;
+}
+
+/* ============ Pendências ============ */
+function vPendencias() {
+  return `<div class="page-head"><div><p class="eyebrow">Acompanhamento manual no SCDP</p><h1>Pendências de alteração</h1></div></div>
+    <div id="res"></div>`;
+}
+function rPendencias() {
+  const pend = S.reports.filter(r => r.status === "PENDENTE").map(r => ({ r, d: derive(r) }))
+    .sort((a, b) => (a.d.ultimoEnvio || "9") < (b.d.ultimoEnvio || "9") ? -1 : 1);
+  const tabs = {
+    todas: ["Todas", () => true],
+    semcons: ["Sem consulta após a devolução", x => x.d.semConsulta],
+    corr: ["Correção identificada", x => x.d.corrigidoAguardando],
+    due: ["Consulta sugerida até hoje", x => x.d.proxChegou],
+    dev2: ["Duas ou mais devoluções", x => x.d.qtdDev >= 2]
+  };
+  const lista = pend.filter(tabs[S.pendTab][1]);
+  return `<div class="chips" role="tablist">${Object.entries(tabs).map(([k, [l, fn]]) => `<button class="chip ${S.pendTab === k ? "on" : ""}" data-act="ptab" data-k="${k}" role="tab" aria-selected="${S.pendTab === k}">${l}<span class="n">${pend.filter(fn).length}</span></button>`).join("")}</div>
+    ${lista.length ? `<div class="plist">${lista.map(x => pRow(x)).join("")}</div>
+    <p style="font-size:.78rem;color:var(--ink-3)">Ordenadas pela data do último envio para alteração, do mais antigo para o mais recente. A data sugerida de consulta é apenas um lembrete pessoal e não configura prazo.</p>`
+      : `<div class="card empty"><span>${pend.length ? "Nenhuma pendência nesta seleção." : "Nenhuma pendência de alteração no momento."}</span></div>`}`;
+}
+
+/* ============ Histórico geral ============ */
+function vHistorico() {
+  const h = S.hf;
+  return `<div class="page-head"><div><p class="eyebrow">Todos os eventos registrados</p><h1>Histórico de movimentações</h1></div>
+    <div class="acts"><button class="btn" data-act="exp-hist" data-fmt="xlsx">Exportar Excel</button><button class="btn" data-act="exp-hist" data-fmt="csv">Exportar CSV</button></div></div>
+  <div class="card filters">
+    <div class="field"><span class="lbl">Período</span><div class="range"><input type="date" id="h-a" data-h="a" value="${esc(h.a)}" aria-label="Período — de"><span>até</span><input type="date" id="h-b" data-h="b" value="${esc(h.b)}" aria-label="Período — até"></div></div>
+    ${fld("h-tipo", "Tipo de movimentação", `<select id="h-tipo" data-h="tipo">${selOpts(Object.fromEntries(Object.entries(TIPOS).map(([k, v]) => [k, v.l])), h.tipo, "Todos")}</select>`)}
+    ${fld("h-mod", "Modalidade", `<select id="h-mod" data-h="mod">${selOpts(MOD, h.mod, "Todas")}</select>`)}
+    ${fld("h-q", "Solicitante, nº SEI ou descrição", `<input type="search" id="h-q" data-h="q" value="${esc(h.q)}">`)}
+  </div>
+  <div id="res"></div>`;
+}
+function eventosHist() {
+  const h = S.hf, t = norm(h.q), out = [];
+  S.reports.forEach(r => {
+    if (h.mod && r.modalidade !== h.mod) return;
+    (r.historico || []).forEach(e => {
+      if (!inR(e.dataHora, h.a, h.b)) return;
+      if (h.tipo && e.tipo !== h.tipo) return;
+      if (t && !norm([r.solicitante, r.protocolo, e.descricao, e.observacoes].join(" ")).includes(t)) return;
+      out.push({ e, r });
+    });
+  });
+  out.sort((a, b) => a.e.dataHora < b.e.dataHora ? 1 : a.e.dataHora > b.e.dataHora ? -1 : (b.e.ord || 0) - (a.e.ord || 0));
+  return out;
+}
+function rHistorico() {
+  const evs = eventosHist();
+  if (!evs.length) return `<div class="card empty"><span>${S.reports.length ? "Nenhuma movimentação encontrada com esses critérios." : "Nenhuma movimentação registrada."}</span></div>`;
+  const lim = 400;
+  return `<div class="tbl-wrap"><table><thead><tr><th>Data e hora</th><th>Solicitante</th><th>Nº Processo SEI</th><th>Modalidade</th><th>Tipo</th><th>Descrição</th><th>Status no registro</th><th>Status atual</th><th>Registrado por</th></tr></thead>
+    <tbody>${evs.slice(0, lim).map(({ e, r }) => `<tr class="click" data-act="ficha" data-id="${r.id}">
+      <td class="dt">${fEv(e)}</td><td>${esc(r.solicitante)}</td><td class="mono">${esc(r.protocolo || "—")}</td><td>${esc(MOD[r.modalidade] || "")}</td>
+      <td>${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].l : e.tipo)}${e.retrospectivo ? ` <span class="tag retro">retrospectivo</span>` : ""}</td>
+      <td class="wrap">${esc(e.descricao)}</td><td>${stBadge(e.statusNoMomento, true)}</td><td>${stBadge(r.status, true)}</td><td>${esc(nomeEv(e))}</td></tr>`).join("")}</tbody></table></div>
+    <div class="tbl-foot"><span>${evs.length} ${plural(evs.length, "movimentação", "movimentações")}${evs.length > lim ? ` · exibindo as ${lim} mais recentes (a exportação inclui todas)` : ""}</span></div>`;
+}
+
+/* ============ Gerencial ============ */
+function vGerencial() {
+  if (!S.gA && !S.gB) { S.gA = hoje().slice(0, 4) + "-01-01"; S.gB = hoje(); }
+  return `<div class="page-head"><div><p class="eyebrow">Resumo quantitativo</p><h1>Relatórios gerenciais</h1></div>
+    <div class="acts"><button class="btn" data-act="exp-ger" data-fmt="xlsx">Exportar Excel</button><button class="btn" data-act="exp-ger" data-fmt="csv">Exportar CSV</button></div></div>
+  <div class="toolbar">
+    <div class="field"><span class="lbl">Período</span><div class="range"><input type="date" id="gA" value="${S.gA}" aria-label="Período — de"><span>até</span><input type="date" id="gB" value="${S.gB}" aria-label="Período — até"></div></div>
+  </div>
+  <div id="res"></div>`;
+}
+function dadosGerencial() {
+  const A = S.gA, B = S.gB;
+  const all = S.reports.map(r => ({ r, d: derive(r) }));
+  const mods = Object.keys(MOD), sts = Object.keys(ST);
+  const cad = all.filter(x => inR(x.r.dataCadastro, A, B));
+  const mCad = [["Modalidade", ...sts.map(s => ST[s]), "Total"]];
+  mods.forEach(m => { const l = cad.filter(x => x.r.modalidade === m); mCad.push([MOD[m], ...sts.map(s => l.filter(x => x.r.status === s).length), l.length]); });
+  mCad.push(["Total", ...sts.map(s => cad.filter(x => x.r.status === s).length), cad.length]);
+  const carteira = [["Modalidade", ...sts.map(s => ST[s]), "Total"]];
+  mods.forEach(m => { const l = all.filter(x => x.r.modalidade === m); carteira.push([MOD[m], ...sts.map(s => l.filter(x => x.r.status === s).length), l.length]); });
+  carteira.push(["Total", ...sts.map(s => all.filter(x => x.r.status === s).length), all.length]);
+  const evs = []; all.forEach(({ r, d }) => d.h.forEach(e => { if (inR(e.dataHora, A, B)) evs.push({ e, r }); }));
+  const mTipo = [["Tipo de movimentação", ...mods.map(m => MOD[m]), "Total"]];
+  Object.entries(TIPOS).forEach(([k, v]) => { const l = evs.filter(x => x.e.tipo === k); mTipo.push([v.l, ...mods.map(m => l.filter(x => x.r.modalidade === m).length), l.length]); });
+  mTipo.push(["Total", ...mods.map(m => evs.filter(x => x.r.modalidade === m).length), evs.length]);
+  const meses = {}; evs.forEach(({ e }) => { const k = e.dataHora.slice(0, 7); meses[k] = meses[k] || { dev: 0, cons: 0, apr: 0, can: 0, out: 0, tot: 0 }; const t = TIPOS[e.tipo] || {}; const o = meses[k]; o.tot++; if (t.dev) o.dev++; else if (t.cons) o.cons++; else if (e.tipo === "APROVACAO") o.apr++; else if (e.tipo === "CANCELAMENTO") o.can++; else o.out++; });
+  const mMes = [["Mês", "Devoluções", "Consultas ao SCDP", "Aprovações", "Cancelamentos", "Outros", "Total"]];
+  Object.keys(meses).sort().forEach(k => { const o = meses[k]; mMes.push([k.slice(5) + "/" + k.slice(0, 4), o.dev, o.cons, o.apr, o.can, o.out, o.tot]); });
+  const devPer = new Set(evs.filter(x => (TIPOS[x.e.tipo] || {}).dev).map(x => x.r.id)).size;
+  let mult = all.filter(x => x.d.qtdDev >= 2);
+  if (S.gOnlyPer) mult = mult.filter(x => x.d.h.some(e => inR(e.dataHora, A, B)));
+  mult.sort((a, b) => b.d.qtdDev - a.d.qtdDev);
+  const lMult = [["Solicitante", "Nº Processo SEI", "Modalidade", "Qtd. devoluções", "Último envio", "Status"]];
+  mult.forEach(({ r, d }) => lMult.push([r.solicitante, r.protocolo, MOD[r.modalidade] || "", d.qtdDev, fDH(d.ultimoEnvio), ST[r.status]]));
+  const per = `${A ? fData(A) : "início"} a ${B ? fData(B) : "hoje"}`;
+  return { per, cad, mCad, carteira, mTipo, mMes, evs, devPer, mult, lMult };
+}
+function mtx(rows) {
+  return `<div class="tbl-wrap"><table class="mtx"><thead><tr>${rows[0].map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${rows.slice(1).map((r, i) => `<tr class="${r[0] === "Total" ? "tot" : ""}">${r.map((c, j) => `<td class="${j ? "num" : ""}">${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+function rGerencial() {
+  if (!S.reports.length) return emptyState("Sem dados para resumir.", "Os resumos são gerados a partir dos relatórios cadastrados.", true);
+  const g = dadosGerencial();
+  return `<div class="kpis">
+      <div class="kpi" style="cursor:default"><span class="kpi-n">${g.cad.length}</span><span class="kpi-l">Relatórios cadastrados no período</span></div>
+      <div class="kpi" style="cursor:default"><span class="kpi-n">${g.evs.length}</span><span class="kpi-l">Movimentações no período</span></div>
+      <div class="kpi" style="cursor:default"><span class="kpi-n">${g.devPer}</span><span class="kpi-l">Relatórios com devolução no período</span></div>
+      <div class="kpi" style="cursor:default"><span class="kpi-n">${S.reports.filter(r => derive(r).qtdDev >= 2).length}</span><span class="kpi-l">Relatórios devolvidos mais de uma vez (total)</span></div>
+    </div>
+    <div class="ger-grid">
+      <section class="section"><div class="section-head"><h2>Cadastrados no período, por modalidade e status atual</h2><span class="hint">${g.per}</span></div>${mtx(g.mCad)}</section>
+      <section class="section"><div class="section-head"><h2>Situação atual de todos os relatórios</h2><span class="hint">sem filtro de período</span></div>${mtx(g.carteira)}</section>
+      <section class="section"><div class="section-head"><h2>Movimentações no período, por tipo e modalidade</h2><span class="hint">${g.per}</span></div>${mtx(g.mTipo)}</section>
+      <section class="section"><div class="section-head"><h2>Movimentações por mês</h2><span class="hint">${g.per}</span></div>${g.mMes.length > 1 ? mtx(g.mMes) : `<div class="card empty"><span>Sem movimentações no período.</span></div>`}</section>
+    </div>
+    <section class="section"><div class="section-head"><h2>Relatórios devolvidos mais de uma vez</h2>
+      <label class="hint" style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="gOnly" ${S.gOnlyPer ? "checked" : ""}> Somente com movimentação no período</label></div>
+      ${g.mult.length ? `<div class="tbl-wrap"><table><thead><tr><th>Solicitante</th><th>Nº Processo SEI</th><th>Modalidade</th><th class="num">Devoluções</th><th>Último envio</th><th>Status</th></tr></thead><tbody>
+        ${g.mult.map(({ r, d }) => `<tr class="click" data-act="ficha" data-id="${r.id}"><td>${esc(r.solicitante)}</td><td class="mono">${esc(r.protocolo || "—")}</td><td>${esc(MOD[r.modalidade] || "")}</td><td class="num">${d.qtdDev}</td><td class="dt">${fDH(d.ultimoEnvio)}</td><td>${stBadge(r.status, true)}</td></tr>`).join("")}
+      </tbody></table></div>` : `<div class="card empty"><span>Nenhum relatório com duas ou mais devoluções.</span></div>`}
+    </section>`;
+}
+
+/* ============ Ficha ============ */
+function vFicha() {
+  const r = S.reports.find(x => x.id === S.fichaId);
+  if (!r) return `<div class="card empty"><strong>Relatório não encontrado.</strong><button class="btn" data-act="voltar">Voltar</button></div>`;
+  const d = derive(r);
+  const hl = S.fichaHL;
+  const nHl = hl ? d.h.filter(e => inR(e.dataHora, hl.a, hl.b)).length : 0;
+  const pend = r.status === "PENDENTE";
+  const tcls = e => { const t = TIPOS[e.tipo] || {}; return "t-" + e.tipo + (t.dev ? " t-dev" : "") + (t.cons ? " t-cons" : ""); };
+  return `<div><button class="btn ghost sm" data-act="voltar">← Voltar</button></div>
+  <div class="ficha-head">
+    <div class="ficha-title">
+      <div class="ficha-ids">${seiHtml(r)}${stBadge(r.status)}</div>
+      <h1>${esc(r.solicitante)}</h1>
+      <div class="ficha-ids muted"><span>${esc(MOD[r.modalidade] || "")}</span><span>Atividade: ${atividade(r)}</span></div>
+      ${pend ? `<div class="prow-top">${flags(d)}</div>` : ""}
+    </div>
+    <div class="ficha-acts needs-write">
+      ${pend ? `<button class="btn primary" data-act="consulta" data-id="${r.id}">Registrar consulta ao SCDP</button>
+      <button class="btn" data-act="devolucao" data-id="${r.id}">${d.qtdDev ? "Registrar nova devolução" : "Devolver para alteração"}</button>
+      <button class="btn" data-act="aprovar" data-id="${r.id}">Aprovar</button>
+      <button class="btn" data-act="cancelar" data-id="${r.id}">Cancelar demanda</button>` : ""}
+      <button class="btn" data-act="editar" data-id="${r.id}">Editar dados</button>
+      ${pend ? `<button class="btn ghost" data-act="retro" data-id="${r.id}">Registro retrospectivo</button>` : ""}
+      <button class="btn ghost" style="color:var(--can)" data-act="excluir" data-id="${r.id}">Excluir registro</button>
+    </div>
+  </div>
+  ${hl ? `<div class="active-note">${nHl} ${plural(nHl, "movimentação", "movimentações")} entre ${hl.a ? fData(hl.a) : "o início"} e ${hl.b ? fData(hl.b) : "hoje"} ${plural(nHl, "destacada", "destacadas")} no histórico.</div>` : ""}
+  ${r.status === "CANCELADO" && r.justificativaCancelamento ? `<div class="banner warn"><strong>Justificativa do cancelamento:</strong> ${esc(r.justificativaCancelamento)}</div>` : ""}
+  <div class="ficha-grid">
+    <div class="section">
+      <div class="card panel"><h3>Dados cadastrais</h3>
+        <dl class="dl">
+          <dt>Nº Processo SEI</dt><dd class="mono">${r.protocolo ? esc(r.protocolo) : "—"}</dd>
+          <dt>Solicitante</dt><dd>${esc(r.solicitante)}</dd>
+          <dt>Modalidade</dt><dd>${esc(MOD[r.modalidade] || "")}</dd>
+          <dt>Período da atividade</dt><dd class="mono">${atividade(r)}</dd>
+        </dl></div>
+      <div class="card panel"><h3>Datas de controle</h3>
+        <dl class="dl">
+          <dt>Cadastro</dt><dd class="mono">${fDH(r.dataCadastro)}</dd>
+          <dt>Primeiro envio p/ alteração</dt><dd class="mono">${fDH(d.primeiroEnvio)}</dd>
+          <dt>Última devolução p/ alteração</dt><dd class="mono">${fDH(d.ultimoEnvio)}</dd>
+          <dt>Devoluções</dt><dd class="mono">${d.qtdDev}</dd>
+          ${pend ? `<dt>Próxima consulta sugerida</dt><dd class="mono">${d.prox ? fData(d.prox) : "—"}</dd>` : ""}
+        </dl></div>
+      <div class="card panel"><h3>Observações internas</h3>${r.observacoes ? `<div class="note">${esc(r.observacoes)}</div>` : `<span class="muted">Sem observações.</span>`}</div>
+    </div>
+    <div class="card panel">
+      <div class="section-head"><h3>Histórico de movimentações (${d.h.length})</h3><button class="btn ghost sm" data-act="exp-ficha" data-id="${r.id}">Exportar CSV</button></div>
+      <ol class="timeline">${d.h.map(e => `<li class="ev ${tcls(e)} ${hl && inR(e.dataHora, hl.a, hl.b) ? "hl" : ""}"><span class="ev-dot"></span><div class="ev-body">
+        <div class="ev-top"><span class="ev-when">${fEv(e)}</span><span class="ev-type">${esc(TIPOS[e.tipo] ? TIPOS[e.tipo].l : e.tipo)}</span>${stBadge(e.statusNoMomento, true)}${e.retrospectivo ? `<span class="tag retro">Registro retrospectivo</span>` : ""}</div>
+        ${e.descricao ? `<div class="ev-desc">${esc(e.descricao)}</div>` : ""}
+        ${e.observacoes ? `<div class="ev-obs">Obs.: ${esc(e.observacoes)}</div>` : ""}
+        <div class="ev-meta"><span>Registrado por ${esc(nomeEv(e))}</span>${(e.retrospectivo || e.dataAjustada) ? `<span>Lançado em ${fDH(e.lancadoEm)}${e.dataAjustada ? " (data informada pelo usuário)" : ""}</span>` : ""}${e.proximaConsulta ? `<span>Próxima consulta sugerida: ${fData(e.proximaConsulta)}</span>` : ""}</div>
+      </div></li>`).join("")}</ol>
+      <p style="font-size:.76rem;color:var(--ink-3)">Os eventos são preservados e não podem ser editados ou excluídos. Correções são registradas como novas movimentações.</p>
+    </div>
+  </div>`;
+}
+
+/* ============ Formulário de cadastro / edição ============ */
+function vForm() {
+  const ed = S.editId ? S.reports.find(x => x.id === S.editId) : null;
+  const r = ed || {};
+  const v = k => esc(r[k] || "");
+  const now = agora();
+  return `<div><button class="btn ghost sm" data-act="voltar">← Voltar</button></div>
+  <div class="page-head"><div><p class="eyebrow">${ed ? esc(ed.solicitante) + (ed.protocolo ? " · SEI " + esc(ed.protocolo) : "") : "Nova demanda"}</p><h1>${ed ? "Editar dados cadastrais" : "Cadastrar relatório"}</h1></div></div>
+  <form id="fCad" class="card form" novalidate>
+    <fieldset><legend>Identificação</legend>
+      <div class="grid2">
+        ${fld("c-protocolo", "Nº Processo SEI", `<input type="text" id="c-protocolo" name="protocolo" value="${v("protocolo")}" autocomplete="off">`, { help: "Opcional." })}
+        <div class="field"><span class="lbl">Modalidade <span class="req">*</span></span><div class="seg" role="radiogroup">
+          ${Object.entries(MOD).map(([k, l]) => `<label><input type="radio" name="modalidade" value="${k}" ${r.modalidade === k ? "checked" : ""}> ${l}</label>`).join("")}</div></div>
+        ${fld("c-solicitante", "Nome do solicitante", `<input type="text" id="c-solicitante" name="solicitante" value="${v("solicitante")}">`, { req: 1 })}
+      </div>
+    </fieldset>
+    <fieldset><legend>Atividade</legend>
+      <div class="grid2">
+        ${fld("c-dataInicio", "Data inicial", `<input type="date" id="c-dataInicio" name="dataInicio" value="${v("dataInicio")}">`, { req: 1 })}
+        ${fld("c-dataFim", "Data final", `<input type="date" id="c-dataFim" name="dataFim" value="${v("dataFim")}">`, { req: 1 })}
+      </div>
+    </fieldset>
+    ${ed ? "" : `<fieldset><legend>Resultado da análise</legend>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="sit" value="devolver" checked><div><strong>Devolver ao solicitante para alteração</strong><span>Registra o envio para correção agora. Status: Pendente de alteração.</span></div></label>
+        <label class="opt"><input type="radio" name="sit" value="pendente"><div><strong>Já estava pendente de alteração</strong><span>Para demandas devolvidas antes do uso deste sistema. O envio é registrado como retrospectivo.</span></div></label>
+        <label class="opt"><input type="radio" name="sit" value="aprovar"><div><strong>Aprovar</strong><span>Relatório conferido e considerado regular.</span></div></label>
+      </div>
+      <div class="subpanel" data-sit="devolver">
+        ${fld("s-dev-txt", "Alteração solicitada", `<textarea id="s-dev-txt" name="devTxt" rows="3" placeholder="Descreva exatamente o que o solicitante deve corrigir"></textarea>`, { req: 1 })}
+        <div class="grid2">
+          ${fld("s-dev-dh", "Data e hora do envio", `<input type="datetime-local" id="s-dev-dh" name="devDH" value="${now}" max="${now}">`, { help: "Ajuste somente se o envio foi feito anteriormente." })}
+          ${fld("s-dev-prox", "Próxima consulta sugerida", `<input type="date" id="s-dev-prox" name="devProx">`, { help: "Opcional. Lembrete pessoal, sem prazo." })}
+        </div>
+      </div>
+      <div class="subpanel" data-sit="pendente" hidden>
+        <div class="grid2">
+          ${fld("s-pen-prim", "Data do primeiro envio para alteração", `<input type="date" id="s-pen-prim" name="penPrim" max="${hoje()}">`, { req: 1 })}
+          ${fld("s-pen-ult", "Data da última devolução", `<input type="date" id="s-pen-ult" name="penUlt" max="${hoje()}">`, { help: "Somente se houve nova devolução depois do primeiro envio." })}
+        </div>
+        ${fld("s-pen-txt", "Alteração solicitada (última devolução)", `<textarea id="s-pen-txt" name="penTxt" rows="2"></textarea>`, { help: "Opcional. Não é necessário reconstruir todo o histórico anterior." })}
+        ${fld("s-pen-prox", "Próxima consulta sugerida", `<input type="date" id="s-pen-prox" name="penProx">`, { help: "Opcional." })}
+      </div>
+      <div class="subpanel" data-sit="aprovar" hidden>
+        ${fld("s-apr-dh", "Data e hora da aprovação", `<input type="datetime-local" id="s-apr-dh" name="aprDH" value="${now}" max="${now}">`)}
+      </div>
+    </fieldset>`}
+    <fieldset><legend>Observações internas</legend>
+      ${fld("c-observacoes", "Observações", `<textarea id="c-observacoes" name="observacoes" rows="3">${v("observacoes")}</textarea>`, { help: "Visíveis apenas neste controle interno." })}
+    </fieldset>
+    ${ed ? `<p style="font-size:.8rem;color:var(--ink-3)">A edição altera somente os dados cadastrais. O histórico é preservado e a alteração fica registrada como "Atualização cadastral relevante".</p>` : ""}
+    <div class="form-warn" id="fWarn" hidden></div>
+    <div class="form-err" id="fErr" hidden></div>
+    <div class="form-acts"><button type="button" class="btn" data-act="voltar">Cancelar</button><button type="submit" class="btn primary">${ed ? "Salvar alterações" : "Cadastrar relatório"}</button></div>
+  </form>`;
+}
+function erroForm(id, msg, foco) {
+  const el = $(id); el.textContent = msg; el.hidden = false;
+  if (foco) { const f = $(foco); if (f) f.focus(); }
+  return false;
+}
+async function submitCadastro(form) {
+  const fd = new FormData(form);
+  const g = k => String(fd.get(k) || "").trim();
+  $("#fErr").hidden = true;
+  const dados = {
+    protocolo: g("protocolo"), solicitante: g("solicitante"), modalidade: g("modalidade"),
+    dataInicio: g("dataInicio"), dataFim: g("dataFim"), observacoes: g("observacoes")
+  };
+  if (!dados.modalidade) return erroForm("#fErr", "Selecione a modalidade: Diária ou Auxílio-representação.");
+  if (!dados.solicitante) return erroForm("#fErr", "Informe o nome do solicitante.", "#c-solicitante");
+  if (!dados.dataInicio || !dados.dataFim) return erroForm("#fErr", "Informe a data inicial e a data final da atividade.", dados.dataInicio ? "#c-dataFim" : "#c-dataInicio");
+  if (dados.dataFim < dados.dataInicio) return erroForm("#fErr", "A data final da atividade não pode ser anterior à data inicial.", "#c-dataFim");
+
+  const dup = dados.protocolo && S.reports.find(x => norm(x.protocolo) === norm(dados.protocolo) && x.id !== S.editId);
+  if (dup && !S.dupOk) {
+    S.dupOk = true;
+    const w = $("#fWarn"); w.hidden = false;
+    w.textContent = `O processo SEI ${dados.protocolo} já está cadastrado para ${dup.solicitante}. Clique novamente em salvar para confirmar mesmo assim.`;
+    return false;
+  }
+
+  if (S.editId) {
+    const ok = await alterar(S.editId, r => {
+      const mud = [];
+      CAMPOS.forEach(([k, l]) => {
+        const a = r[k] || "", b = dados[k] || "";
+        if (a !== b) {
+          const fmt = x => k === "modalidade" ? (MOD[x] || "—") : k.startsWith("data") ? fData(x) : (x ? (x.length > 80 ? x.slice(0, 80) + "…" : x) : "(vazio)");
+          mud.push(`${l}: ${fmt(a)} → ${fmt(b)}`);
+          r[k] = b;
+        }
+      });
+      if (!mud.length) return false;
+      addEv(r, "ATUALIZACAO", { descricao: "Dados cadastrais alterados.\n" + mud.join("\n") });
+    }, "Alterações salvas e registradas no histórico.");
+    go("ficha", { id: S.editId });
+    if (ok === false) toast("Nenhum dado foi alterado.");
+    return;
+  }
+
+  const sit = g("sit");
+  const now = agora();
+  const r = { id: gid(), ...dados, dataCadastro: now, status: sit === "aprovar" ? "APROVADO" : "PENDENTE", justificativaCancelamento: "", historico: [], criadoPor: S.uid || null };
+  if (sit === "devolver") {
+    const txt = g("devTxt"), dh = g("devDH") || now;
+    if (!txt) return erroForm("#fErr", "Descreva a alteração solicitada ao solicitante.", "#s-dev-txt");
+    if (dh > now) return erroForm("#fErr", "A data do envio não pode estar no futuro.", "#s-dev-dh");
+    addEv(r, "CADASTRO", { descricao: `Demanda cadastrada (${MOD[r.modalidade]}).` });
+    addEv(r, "ENVIO", { dataHora: dh, descricao: txt, extra: { proximaConsulta: g("devProx") || null } });
+  } else if (sit === "pendente") {
+    const prim = g("penPrim"), ult = g("penUlt");
+    if (!prim) return erroForm("#fErr", "Informe a data do primeiro envio para alteração.", "#s-pen-prim");
+    if (prim > hoje() || (ult && ult > hoje())) return erroForm("#fErr", "As datas de envio não podem estar no futuro.");
+    if (ult && ult < prim) return erroForm("#fErr", "A data da última devolução não pode ser anterior ao primeiro envio.", "#s-pen-ult");
+    const txt = g("penTxt"), prox = g("penProx") || null, temUlt = ult && ult > prim;
+    addEv(r, "CADASTRO", { descricao: `Demanda cadastrada já pendente de alteração (${MOD[r.modalidade]}).` });
+    addEv(r, "ENVIO", { dataHora: prim + "T00:00", semHora: true, retro: true, descricao: (!temUlt && txt) ? txt : "Primeiro envio para alteração, informado no cadastro.", extra: { proximaConsulta: temUlt ? null : prox } });
+    if (temUlt) addEv(r, "NOVA_DEV", { dataHora: ult + "T00:00", semHora: true, retro: true, descricao: txt || "Última devolução para alteração, informada no cadastro.", extra: { proximaConsulta: prox } });
+  } else {
+    const dh = g("aprDH") || now;
+    if (dh > now) return erroForm("#fErr", "A data da aprovação não pode estar no futuro.", "#s-apr-dh");
+    addEv(r, "CADASTRO", { descricao: `Demanda cadastrada (${MOD[r.modalidade]}).` });
+    addEv(r, "APROVACAO", { dataHora: dh, descricao: "Relatório conferido e considerado regular." });
+  }
+  // o evento de cadastro registra o status inicial de entrada
+  r.historico[0].statusNoMomento = "PENDENTE";
+  if (sit === "aprovar") r.historico[0].statusNoMomento = "APROVADO";
+  if (await gravar(r, "Relatório cadastrado.")) go("ficha", { id: r.id });
+}
+
+/* ============ Modais de ação ============ */
+const M = $("#modal");
+function openModal({ title, sub, body, submit, danger, onSubmit, footer }) {
+  M.innerHTML = `<form class="modal" id="mForm" novalidate>
+    <header><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div><button type="button" class="icon-btn" data-act="mclose" aria-label="Fechar">×</button></header>
+    <div class="mbody">${body || ""}<div class="form-err" id="mErr" hidden></div></div>
+    <footer>${footer != null ? footer : `<button type="button" class="btn" data-act="mclose">Voltar</button><button type="submit" class="btn ${danger ? "danger" : "primary"}">${submit}</button>`}</footer></form>`;
+  M.hidden = false;
+  S.mSubmit = onSubmit || null;
+  const first = M.querySelector("textarea:not([readonly]),input:not([type=hidden]):not([type=radio]),select");
+  setTimeout(() => (first || M.querySelector("button")).focus(), 30);
+}
+function closeModal() { M.hidden = true; M.innerHTML = ""; S.mSubmit = null; }
+function mErr(msg, foco) { const e = $("#mErr"); e.textContent = msg; e.hidden = false; if (foco) { const f = $(foco); if (f) f.focus(); } return false; }
+function cabecalho(r) { return `${esc(r.solicitante)}${r.protocolo ? " · SEI " + esc(r.protocolo) : ""} · ${esc(MOD[r.modalidade] || "")}`; }
+function campoDH(id, label, help) { const n = agora(); return fld(id, label, `<input type="datetime-local" id="${id}" value="${n}" max="${n}">`, { help: help || "Preenchida com o momento atual. Ajuste se a providência ocorreu antes." }); }
+function lerDH(id) { const v = $("#" + id).value; if (!v) return null; return v.slice(0, 16); }
+
+function modalConsulta(id) {
+  const r = S.reports.find(x => x.id === id); if (!r) return;
+  openModal({
+    title: "Registrar consulta ao SCDP", sub: cabecalho(r), submit: "Registrar consulta",
+    body: `${campoDH("m-dh", "Data e hora da consulta")}
+      <div class="field"><span class="lbl">Resultado da consulta <span class="req">*</span></span><div class="opts">
+        <label class="opt"><input type="radio" name="res" value="nao" checked><div><strong>Pendência não sanada</strong><span>O solicitante ainda não realizou as correções.</span></div></label>
+        <label class="opt"><input type="radio" name="res" value="corr"><div><strong>Relatório corrigido</strong><span>Correções identificadas. O status continua pendente até a conclusão da nova análise.</span></div></label>
+        <label class="opt"><input type="radio" name="res" value="outra"><div><strong>Outra situação</strong><span>Descreva abaixo.</span></div></label>
+      </div></div>
+      <div id="m-outra" hidden>${fld("m-outra-txt", "Descrição da situação", `<textarea id="m-outra-txt" rows="2"></textarea>`, { req: 1 })}</div>
+      ${fld("m-obs", "Observações", `<textarea id="m-obs" rows="2"></textarea>`)}
+      ${fld("m-prox", "Próxima consulta sugerida", `<input type="date" id="m-prox" min="${hoje()}">`, { help: "Opcional. Apenas para organizar sua rotina." })}`,
+    onSubmit: async () => {
+      const dh = lerDH("m-dh"); if (!dh) return mErr("Informe a data e a hora da consulta.", "#m-dh");
+      if (dh > agora()) return mErr("A data da consulta não pode estar no futuro.", "#m-dh");
+      const res = M.querySelector("input[name=res]:checked").value;
+      const outra = $("#m-outra-txt").value.trim();
+      if (res === "outra" && !outra) return mErr("Descreva a situação encontrada no SCDP.", "#m-outra-txt");
+      const tipo = { nao: "NAO_SANADA", corr: "CORRIGIDO", outra: "CONSULTA" }[res];
+      const desc = { nao: "Consulta ao SCDP: pendência ainda não sanada pelo solicitante.", corr: "Consulta ao SCDP: relatório corrigido pelo solicitante. Nova análise a concluir.", outra: "Consulta ao SCDP — outra situação: " + outra }[res];
+      const ok = await alterar(id, r => { addEv(r, tipo, { dataHora: dh, descricao: desc, observacoes: $("#m-obs").value.trim(), extra: { resultadoConsulta: res, proximaConsulta: $("#m-prox").value || null } }); }, "Consulta ao SCDP registrada.");
+      if (!ok) return false;
+      if (res === "corr") { modalSeguimento(id); return "keep"; }
+    }
+  });
+}
+function modalSeguimento(id) {
+  const r = S.reports.find(x => x.id === id); if (!r) { closeModal(); return; }
+  openModal({
+    title: "Correção identificada", sub: cabecalho(r),
+    body: `<p>A consulta foi registrada e o relatório continua <strong>Pendente de alteração</strong>. Se já concluiu a nova análise, registre o resultado agora.</p>`,
+    footer: `<button type="button" class="btn" data-act="mclose">Concluir depois</button><button type="button" class="btn" data-act="devolucao" data-id="${id}">Registrar nova devolução</button><button type="button" class="btn primary" data-act="aprovar" data-id="${id}">Aprovar</button>`
+  });
+}
+function modalDevolucao(id) {
+  const r = S.reports.find(x => x.id === id); if (!r) return;
+  const n = derive(r).qtdDev;
+  openModal({
+    title: n ? "Registrar nova devolução" : "Devolver para alteração", sub: cabecalho(r) + (n ? ` · esta será a ${n + 1}ª devolução` : ""), submit: "Registrar devolução",
+    body: `${fld("m-txt", "Alteração solicitada", `<textarea id="m-txt" rows="4" placeholder="Descreva exatamente o que o solicitante deve corrigir"></textarea>`, { req: 1, help: "As devoluções anteriores permanecem no histórico sem alteração." })}
+      ${campoDH("m-dh", "Data e hora do envio")}
+      ${fld("m-obs", "Observações", `<textarea id="m-obs" rows="2"></textarea>`)}
+      ${fld("m-prox", "Próxima consulta sugerida", `<input type="date" id="m-prox" min="${hoje()}">`, { help: "Opcional." })}`,
+    onSubmit: async () => {
+      const txt = $("#m-txt").value.trim(); if (!txt) return mErr("Descreva a alteração solicitada.", "#m-txt");
+      const dh = lerDH("m-dh"); if (!dh) return mErr("Informe a data e a hora do envio.", "#m-dh");
+      if (dh > agora()) return mErr("A data do envio não pode estar no futuro.", "#m-dh");
+      return alterar(id, r => {
+        if (r.status !== "PENDENTE") return false;
+        const t = derive(r).qtdDev ? "NOVA_DEV" : "ENVIO";
+        addEv(r, t, { dataHora: dh, descricao: txt, observacoes: $("#m-obs").value.trim(), extra: { proximaConsulta: $("#m-prox").value || null } });
+      }, "Devolução registrada. Status: Pendente de alteração.");
+    }
+  });
+}
+function modalAprovar(id) {
+  const r = S.reports.find(x => x.id === id); if (!r) return;
+  openModal({
+    title: "Aprovar relatório", sub: cabecalho(r), submit: "Confirmar aprovação",
+    body: `${fld("m-txt", "Descrição", `<textarea id="m-txt" rows="2">Relatório conferido e considerado regular.</textarea>`)}
+      ${campoDH("m-dh", "Data e hora da aprovação")}
+      ${fld("m-obs", "Observações", `<textarea id="m-obs" rows="2"></textarea>`)}
+      <p style="font-size:.82rem;color:var(--ink-2)">O status passará para <strong>Aprovado</strong>. Todo o histórico anterior será mantido.</p>`,
+    onSubmit: async () => {
+      const dh = lerDH("m-dh"); if (!dh) return mErr("Informe a data e a hora.", "#m-dh");
+      if (dh > agora()) return mErr("A data não pode estar no futuro.", "#m-dh");
+      return alterar(id, r => {
+        if (r.status !== "PENDENTE") return false;
+        r.status = "APROVADO";
+        addEv(r, "APROVACAO", { dataHora: dh, descricao: $("#m-txt").value.trim() || "Relatório aprovado.", observacoes: $("#m-obs").value.trim() });
+      }, "Relatório aprovado.");
+    }
+  });
+}
+function modalCancelar(id) {
+  const r = S.reports.find(x => x.id === id); if (!r) return;
+  openModal({
+    title: "Cancelar demanda", sub: cabecalho(r), submit: "Confirmar cancelamento", danger: true,
+    body: `${fld("m-txt", "Justificativa do cancelamento", `<textarea id="m-txt" rows="3"></textarea>`, { req: 1, help: "Obrigatória. Ficará registrada na ficha e no histórico." })}
+      ${campoDH("m-dh", "Data e hora do cancelamento")}
+      ${fld("m-obs", "Observações", `<textarea id="m-obs" rows="2"></textarea>`)}`,
+    onSubmit: async () => {
+      const txt = $("#m-txt").value.trim();
+      if (txt.length < 5) return mErr("Registre a justificativa do cancelamento.", "#m-txt");
+      const dh = lerDH("m-dh"); if (!dh) return mErr("Informe a data e a hora.", "#m-dh");
+      if (dh > agora()) return mErr("A data não pode estar no futuro.", "#m-dh");
+      return alterar(id, r => {
+        if (r.status !== "PENDENTE") return false;
+        r.status = "CANCELADO"; r.justificativaCancelamento = txt;
+        addEv(r, "CANCELAMENTO", { dataHora: dh, descricao: "Demanda cancelada. Justificativa: " + txt, observacoes: $("#m-obs").value.trim() });
+      }, "Demanda cancelada.");
+    }
+  });
+}
+function modalExcluir(id) {
+  const r = S.reports.find(x => x.id === id); if (!r) return;
+  const n = (r.historico || []).length;
+  openModal({
+    title: "Excluir registro", sub: cabecalho(r), submit: "Excluir definitivamente", danger: true,
+    body: `<div class="banner warn">O relatório e todo o seu histórico (${n} ${plural(n, "movimentação", "movimentações")}) serão apagados do sistema. Esta ação não pode ser desfeita.</div>
+      <p style="font-size:.84rem;color:var(--ink-2)">Se a demanda apenas deixou de existir, prefira <strong>Cancelar demanda</strong>, que mantém o registro com a justificativa. Use a exclusão para cadastros feitos por engano ou duplicados.</p>
+      <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer"><input type="checkbox" id="m-conf" style="margin-top:3px"> <span>Confirmo que desejo excluir este registro.</span></label>`,
+    onSubmit: async () => {
+      if (!$("#m-conf").checked) return mErr("Marque a confirmação para excluir o registro.", "#m-conf");
+      try {
+        await (filas[id] || Promise.resolve());
+        await S.db.collection(COL).doc(id).delete();
+        S.reports = S.reports.filter(x => x.id !== id);
+        closeModal();
+        go(S.back || "relatorios");
+        atualizar();
+        toast("Registro excluído.");
+        return "keep";
+      } catch (e) { tratarErroEscrita(e); return false; }
+    }
+  });
+}
+function modalRetro(id) {
+  const r = S.reports.find(x => x.id === id); if (!r) return;
+  const tipos = { ENVIO: TIPOS.ENVIO.l, NOVA_DEV: TIPOS.NOVA_DEV.l, NAO_SANADA: "Consulta ao SCDP — pendência não sanada", CORRIGIDO: "Consulta ao SCDP — relatório corrigido", CONSULTA: "Consulta ao SCDP — outra situação" };
+  openModal({
+    title: "Adicionar registro retrospectivo", sub: cabecalho(r), submit: "Adicionar ao histórico",
+    body: `<p style="font-size:.84rem;color:var(--ink-2)">Use para registrar uma providência realizada antes do cadastro ou esquecida. O evento é identificado como retrospectivo e não altera o status.</p>
+      ${fld("m-tipo", "Tipo de movimentação", `<select id="m-tipo">${Object.entries(tipos).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join("")}</select>`, { req: 1 })}
+      ${fld("m-dh", "Data e hora em que ocorreu", `<input type="datetime-local" id="m-dh" max="${agora()}">`, { req: 1 })}
+      ${fld("m-txt", "Descrição da providência", `<textarea id="m-txt" rows="3"></textarea>`, { req: 1 })}
+      ${fld("m-obs", "Observações", `<textarea id="m-obs" rows="2"></textarea>`)}`,
+    onSubmit: async () => {
+      const dh = lerDH("m-dh"); if (!dh) return mErr("Informe quando a providência ocorreu.", "#m-dh");
+      if (dh > agora()) return mErr("A data não pode estar no futuro.", "#m-dh");
+      const txt = $("#m-txt").value.trim(); if (!txt) return mErr("Descreva a providência realizada.", "#m-txt");
+      const tipo = $("#m-tipo").value;
+      return alterar(id, r => {
+        const ev = addEv(r, tipo, { dataHora: dh, descricao: txt, observacoes: $("#m-obs").value.trim(), retro: true, extra: TIPOS[tipo].cons ? { resultadoConsulta: { NAO_SANADA: "nao", CORRIGIDO: "corr", CONSULTA: "outra" }[tipo] } : {} });
+        ev.statusNoMomento = "PENDENTE";
+      }, "Registro retrospectivo adicionado.");
+    }
+  });
+}
+
+/* ============ Interface: eventos ============ */
+let tt;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 3400); }
+function abrirMenu() { $("#side").classList.add("open"); $("#scrim").hidden = false; }
+function fecharMenu() { $("#side").classList.remove("open"); $("#scrim").hidden = true; }
+$("#menuBtn").addEventListener("click", abrirMenu);
+$("#scrim").addEventListener("click", fecharMenu);
+
+document.addEventListener("click", async e => {
+  const nav = e.target.closest("[data-nav]");
+  if (nav) { e.preventDefault(); go(nav.dataset.nav); return; }
+  const ng = e.target.closest("[data-nav-go]");
+  if (ng) { go(ng.dataset.navGo); return; }
+  const a = e.target.closest("[data-act]");
+  if (!a) { if (e.target === M) closeModal(); return; }
+  const act = a.dataset.act, id = a.dataset.id;
+  const precisaEscrita = ["novo", "consulta", "devolucao", "aprovar", "cancelar", "editar", "retro", "excluir"];
+  if (precisaEscrita.includes(act) && !S.canWrite) { toast("Seu acesso permite apenas consulta."); return; }
+  switch (act) {
+    case "novo": closeModal(); go("form"); break;
+    case "ficha": {
+      if (e.target.closest(".prow-acts")) return;
+      const hl = a.dataset.hl && (S.f.perA || S.f.perB) ? { a: S.f.perA, b: S.f.perB } : null;
+      go("ficha", { id, hl }); break;
+    }
+    case "voltar": go(S.back || "relatorios"); break;
+    case "consulta": modalConsulta(id); break;
+    case "devolucao": modalDevolucao(id); break;
+    case "aprovar": modalAprovar(id); break;
+    case "cancelar": modalCancelar(id); break;
+    case "retro": modalRetro(id); break;
+    case "excluir": modalExcluir(id); break;
+    case "editar": go("form", { id }); break;
+    case "mclose": closeModal(); break;
+    case "copiar": {
+      const ta = $("#cpTxt");
+      try { await navigator.clipboard.writeText(ta.value); toast("Conteúdo copiado."); }
+      catch { ta.focus(); ta.select(); toast("Selecione e copie com Ctrl+C."); }
+      break;
+    }
+    case "toggle-filtros": S.showF = !S.showF; $("#filtros").hidden = !S.showF; a.setAttribute("aria-expanded", S.showF); break;
+    case "limpar": S.f = filtrosVazios(); renderView(); break;
+    case "dir": S.f.dir = S.f.dir === "asc" ? "desc" : "asc"; a.textContent = S.f.dir === "asc" ? "↑ Crescente" : "↓ Decrescente"; renderRes(); break;
+    case "ptab": S.pendTab = a.dataset.k; renderRes(); break;
+    case "kpi": {
+      const k = a.dataset.k;
+      if (k === "pend" || k === "semcons" || k === "corr") { S.pendTab = { pend: "todas", semcons: "semcons", corr: "corr" }[k]; go("pendencias"); break; }
+      if (k === "mov") { S.hf = { a: S.dA, b: S.dB, tipo: "", mod: "", q: "" }; go("historico"); break; }
+      S.f = filtrosVazios();
+      if (k === "apr") S.f.st = "APROVADO";
+      if (k === "can") S.f.st = "CANCELADO";
+      if (k === "dev2") { S.f.dev = "2"; S.showF = true; }
+      go("relatorios"); break;
+    }
+    case "exp-reg": {
+      const it = filtrar(S.f); if (!it.length) { toast("Nenhum registro para exportar com os filtros atuais."); break; }
+      exportar("relatorios", [{ name: "Relatórios", rows: linhasRegistros(it, !!(S.f.perA || S.f.perB)) }], a.dataset.fmt); break;
+    }
+    case "exp-hist-f": {
+      const it = filtrar(S.f); const evs = [];
+      it.forEach(({ r, d }) => d.h.forEach(e => { if (inR(e.dataHora, S.f.perA, S.f.perB)) evs.push({ e, r }); }));
+      if (!evs.length) { toast("Nenhuma movimentação para exportar com os filtros atuais."); break; }
+      exportar("historico_filtrado", [{ name: "Histórico", rows: linhasHistorico(evs) }], a.dataset.fmt); break;
+    }
+    case "exp-hist": {
+      const evs = eventosHist(); if (!evs.length) { toast("Nenhuma movimentação para exportar."); break; }
+      exportar("historico_movimentacoes", [{ name: "Histórico", rows: linhasHistorico(evs) }], a.dataset.fmt); break;
+    }
+    case "exp-ficha": {
+      const r = S.reports.find(x => x.id === id); if (!r) break;
+      exportar("historico_" + (r.protocolo || r.solicitante).replace(/[^\w\-]+/g, "_").slice(0, 40), [{ name: "Histórico", rows: linhasHistorico(derive(r).h.map(e => ({ e, r }))) }], "csv"); break;
+    }
+    case "exp-ger": {
+      const g = dadosGerencial();
+      const titulo = [["Resumo gerencial — período " + g.per]];
+      exportar("resumo_gerencial", [
+        { name: "Cadastrados no período", rows: [...titulo, ...g.mCad] },
+        { name: "Situação atual", rows: g.carteira },
+        { name: "Movimentações por tipo", rows: [...titulo, ...g.mTipo] },
+        { name: "Movimentações por mês", rows: [...titulo, ...g.mMes] },
+        { name: "Devolvidos mais de uma vez", rows: g.lMult }
+      ], a.dataset.fmt); break;
+    }
+  }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && !M.hidden) closeModal();
+  if (e.key === "Enter" && e.target.matches("[role=link][data-act=ficha]")) e.target.click();
+});
+let deb;
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.dataset.f) {
+    S.f[t.dataset.f] = t.value; clearTimeout(deb);
+    deb = setTimeout(() => {
+      renderRes();
+      const b = document.querySelector("[data-act=toggle-filtros]"); if (b) { const n = filtrosAtivos(S.f); b.textContent = "Filtros" + (n ? ` (${n})` : ""); }
+    }, t.type === "search" || t.type === "text" ? 160 : 0);
+  } else if (t.dataset.h) { S.hf[t.dataset.h] = t.value; clearTimeout(deb); deb = setTimeout(renderRes, 160); }
+  else if (t.id === "dA" || t.id === "dB") { S[t.id] = t.value; renderRes(); }
+  else if (t.id === "gA" || t.id === "gB") { S[t.id] = t.value; renderRes(); }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "dueFirst") { S.dashDueFirst = t.checked; renderRes(); }
+  if (t.id === "gOnly") { S.gOnlyPer = t.checked; renderRes(); }
+  if (t.name === "sit") document.querySelectorAll("[data-sit]").forEach(p => p.hidden = p.dataset.sit !== t.value);
+  if (t.name === "res") $("#m-outra").hidden = t.value !== "outra";
+  if (t.name === "protocolo") S.dupOk = false;
+});
+document.addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target;
+  const btn = f.querySelector("button[type=submit]");
+  if (btn) btn.disabled = true;
+  try {
+    if (f.id === "fCad") await submitCadastro(f);
+    else if (f.id === "mForm" && S.mSubmit) {
+      const r = await S.mSubmit(f);
+      if (r !== false && r !== "keep") closeModal();
+    }
+  } catch (err) { console.error(err); toast("Ocorreu um erro inesperado. Nada foi perdido; tente novamente."); }
+  finally { if (btn && btn.isConnected) btn.disabled = false; }
+});
+
+/* ============ Inicialização (Firebase) ============ */
+function semBanco(msg) {
+  $("#view").innerHTML = `<div class="card empty" style="max-width:560px;margin:40px auto"><strong>Sistema não configurado</strong><span>${msg}</span></div>`;
+  document.querySelectorAll(".needs-write").forEach(el => el.hidden = true);
+}
+function nomeSugerido(email) {
+  const mapa = window.CR_USUARIOS || {};
+  const k = Object.keys(mapa).find(x => x.toLowerCase() === String(email || "").toLowerCase());
+  return (k && mapa[k]) || "";
+}
+// Download direto: fora do claude.ai o navegador permite salvar arquivos normalmente.
+const downloadLocal = {
+  async save({ filename, data }) {
+    const tipo = filename.endsWith(".csv") ? "text/csv;charset=utf-8" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    const blob = data instanceof Blob ? data : new Blob([data], { type: tipo });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    return { status: "saved" };
+  }
+};
+const MSG_LOGIN = {
+  "auth/invalid-credential": "E-mail ou senha incorretos.",
+  "auth/wrong-password": "E-mail ou senha incorretos.",
+  "auth/user-not-found": "E-mail ou senha incorretos.",
+  "auth/invalid-email": "Informe um e-mail válido.",
+  "auth/user-disabled": "Este usuário foi desativado.",
+  "auth/too-many-requests": "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
+  "auth/network-request-failed": "Sem conexão com a internet. Verifique a rede e tente novamente.",
+  "auth/email-already-in-use": "Este e-mail já tem senha cadastrada. Use “Entrar” ou “Esqueci minha senha”.",
+  "auth/weak-password": "Senha fraca. Use no mínimo 12 caracteres, com maiúscula, minúscula, número e símbolo.",
+  "auth/password-does-not-meet-requirements": "A senha não atende à política de segurança: mínimo de 12 caracteres, com maiúscula, minúscula, número e símbolo. Se for a sua senha atual, use “Esqueci minha senha” para criar uma nova.",
+  "auth/operation-not-allowed": "O primeiro acesso está desligado no Firebase. O responsável pelo projeto precisa marcar “Ativar criação (inscrição)” em Authentication > Configurações > Ações do usuário.",
+  "auth/admin-restricted-operation": "O primeiro acesso está desligado no Firebase. O responsável pelo projeto precisa marcar “Ativar criação (inscrição)” em Authentication > Configurações > Ações do usuário.",
+  "auth/unauthorized-domain": "Este endereço não está autorizado no Firebase. Adicione o domínio em Authentication > Configurações > Domínios autorizados."
+};
+const RX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function msgEm(id, txt, ok) { const m = $(id); m.textContent = txt || ""; m.className = "login-msg " + (ok ? "ok" : "err"); m.hidden = !txt; }
+function msgLogin(txt, ok) { msgEm("#l-msg", txt, ok); }
+function painel(nome) {
+  ["entrar", "novo", "verif", "init"].forEach(p => { $("#lp-" + p).hidden = p !== nome; });
+  ["#l-msg", "#n-msg", "#v-msg", "#i-msg"].forEach(id => { if (!$(id).closest(".lp").id.endsWith(nome)) $(id).hidden = true; });
+  $("#login").hidden = false;
+  const f = $("#lp-" + nome).querySelector("input:not([type=hidden])");
+  if (f) setTimeout(() => f.focus(), 50);
+}
+function erroSenha(s) {
+  if (s.length < 12) return "A senha precisa ter pelo menos 12 caracteres.";
+  if (!/[A-Z]/.test(s) || !/[a-z]/.test(s) || !/[0-9]/.test(s) || !/[^A-Za-z0-9]/.test(s))
+    return "Use letras maiúsculas e minúsculas, números e pelo menos um símbolo (por exemplo ! @ # $ %).";
+  return "";
+}
+
+/* ---------- Equipe: estado ---------- */
+S.perfis = []; S.adminEmail = ""; S.isAdmin = false; S.meuEmail = "";
+let subs = [], dadosIniciados = false;
+function pararTudo() { subs.forEach(f => { try { f(); } catch (e) {} }); subs = []; dadosIniciados = false; }
+function nomePerfil(email) { const p = S.perfis.find(x => x.id === email); return (p && p.nome) || email; }
+function atualizarQuem() {
+  const eu = S.perfis.find(p => p.id === S.meuEmail);
+  S.me = (eu && eu.nome) || nomeSugerido(S.meuEmail) || S.meuEmail;
+  $("#who").textContent = S.me + (S.isAdmin ? " · administrador" : "");
+}
+function urlSistema() { return location.origin + location.pathname; }
+
+/* ---------- Equipe: tela ---------- */
+function vEquipe() {
+  return `<div class="page-head"><div><p class="eyebrow">Perfis de acesso</p><h1>Equipe</h1></div>
+    <div class="acts">${S.isAdmin ? `<button class="btn primary" data-act="eq-add">+ Incluir perfil</button>` : ""}</div></div>
+    <div id="res"></div>`;
+}
+function situacao(p) {
+  if (!p.ativo) return `<span class="st CANCELADO sm">Desativado</span>`;
+  if (!p.ultimoAcesso && p.id !== S.adminEmail) return `<span class="st PENDENTE sm">Aguardando primeiro acesso</span>`;
+  return `<span class="st APROVADO sm">Ativo</span>`;
+}
+function rEquipe() {
+  const lista = [...S.perfis].sort((a, b) => (b.id === S.adminEmail) - (a.id === S.adminEmail) || norm(a.nome).localeCompare(norm(b.nome)));
+  const adm = nomePerfil(S.adminEmail);
+  const linhas = lista.map(p => {
+    const ehAdm = p.id === S.adminEmail;
+    let acts = "";
+    if (S.isAdmin) {
+      acts = `<button class="btn sm" data-act="eq-edit" data-email="${esc(p.id)}">Editar nome</button>`;
+      if (!ehAdm) {
+        acts += p.ativo ? `<button class="btn sm" data-act="eq-admin" data-email="${esc(p.id)}">Tornar administrador</button>
+          <button class="btn sm" data-act="eq-toggle" data-email="${esc(p.id)}">Desativar</button>`
+          : `<button class="btn sm" data-act="eq-toggle" data-email="${esc(p.id)}">Reativar</button>`;
+        acts += `<button class="btn sm" style="color:var(--can)" data-act="eq-del" data-email="${esc(p.id)}">Excluir</button>`;
+        if (p.ativo && !p.ultimoAcesso) acts += `<button class="btn sm ghost" data-act="eq-convite" data-email="${esc(p.id)}">Ver instruções de acesso</button>`;
+      }
+    }
+    return `<tr>
+      <td><strong>${esc(p.nome)}</strong>${p.id === S.meuEmail ? ` <span class="muted">(você)</span>` : ""}</td>
+      <td class="mono" style="font-size:.84rem">${esc(p.id)}</td>
+      <td>${ehAdm ? `<span class="tag adm">Administrador</span>` : `<span class="tag">Membro</span>`}</td>
+      <td>${situacao(p)}</td>
+      <td class="dt">${p.ultimoAcesso ? fDH(p.ultimoAcesso) : "—"}</td>
+      ${S.isAdmin ? `<td><div class="eq-acts">${acts}</div></td>` : ""}
+    </tr>`;
+  }).join("");
+  return `<div class="banner">${S.isAdmin
+      ? "Você é o administrador. Inclua, desative ou exclua perfis e, quando precisar se ausentar ou sair da equipe, passe a administração para outra pessoa em “Tornar administrador”."
+      : `Administrador da equipe: <strong>${esc(adm)}</strong>. Para incluir ou excluir perfis, fale com ele(a).`}</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Nome</th><th>E-mail</th><th>Papel</th><th>Situação</th><th>Último acesso</th>${S.isAdmin ? "<th>Ações</th>" : ""}</tr></thead>
+      <tbody>${linhas}</tbody></table></div>
+    <div class="tbl-foot"><span>${lista.length} ${plural(lista.length, "perfil", "perfis")} · ${lista.filter(p => p.ativo).length} ${plural(lista.filter(p => p.ativo).length, "ativo", "ativos")}</span></div>
+    <p style="font-size:.8rem;color:var(--ink-3);max-width:70ch">Desativar ou excluir um perfil remove o acesso na hora, mesmo que a pessoa esteja com o sistema aberto. As movimentações que ela registrou continuam no histórico com o nome dela. Cada pessoa cria a própria senha no “Primeiro acesso”; o administrador não tem acesso às senhas.</p>`;
+}
+function textoConvite(nome, email) {
+  return `Olá, ${nome}! Você foi incluído(a) na equipe do Controle de Relatórios.
+
+1. Acesse: ${urlSistema()}
+2. Clique em "Primeiro acesso".
+3. Informe o e-mail ${email} e crie a sua senha (mínimo de 12 caracteres, com letra maiúscula, letra minúscula, número e símbolo).
+4. Abra o link de confirmação que chegará no seu e-mail (veja também a caixa de spam).
+5. Volte ao sistema e clique em "Já confirmei, entrar".`;
+}
+function modalConvite(email) {
+  const p = S.perfis.find(x => x.id === email); if (!p) return;
+  openModal({
+    title: "Instruções de acesso", sub: `${esc(p.nome)} · ${esc(email)}`,
+    body: `<p style="font-size:.86rem;color:var(--ink-2)">Envie esta mensagem para a pessoa por e-mail ou WhatsApp. Ela mesma criará a senha.</p>
+      <textarea class="copybox" id="cpTxt" readonly style="min-height:210px;font-family:var(--f-sans);font-size:.86rem">${esc(textoConvite(p.nome, email))}</textarea>`,
+    footer: `<button type="button" class="btn" data-act="mclose">Fechar</button><button type="button" class="btn primary" data-act="copiar">Copiar mensagem</button>`
+  });
+}
+function erroEquipe(e) {
+  console.error(e);
+  if (e && e.code === "permission-denied") toast("Somente o administrador pode alterar a equipe.");
+  else toast("Não foi possível salvar agora. Verifique a conexão e tente novamente.");
+  return false;
+}
+function modalIncluir() {
+  openModal({
+    title: "Incluir perfil", sub: "A pessoa receberá as instruções para criar a própria senha.", submit: "Incluir na equipe",
+    body: `${fld("m-nome", "Nome", `<input type="text" id="m-nome" maxlength="80">`, { req: 1, help: "Aparece em “Registrado por” no histórico." })}
+      ${fld("m-email", "E-mail", `<input type="text" id="m-email" inputmode="email" autocomplete="off">`, { req: 1, help: "É com este e-mail que a pessoa fará o primeiro acesso." })}`,
+    onSubmit: async () => {
+      const nome = $("#m-nome").value.trim(), email = $("#m-email").value.trim().toLowerCase();
+      if (!nome) return mErr("Informe o nome.", "#m-nome");
+      if (!RX_EMAIL.test(email) || email.includes("/")) return mErr("Informe um e-mail válido.", "#m-email");
+      if (S.perfis.some(p => p.id === email)) return mErr("Este e-mail já está na equipe.", "#m-email");
+      try {
+        await S.db.collection("perfis").doc(email).set({ email, nome, ativo: true, criadoEm: agora(), criadoPor: S.meuEmail });
+      } catch (e) { return erroEquipe(e); }
+      S.perfis = [...S.perfis.filter(p => p.id !== email), { id: email, email, nome, ativo: true }];
+      toast("Perfil incluído.");
+      modalConvite(email);
+      return "keep";
+    }
+  });
+}
+function modalEditarNome(email) {
+  const p = S.perfis.find(x => x.id === email); if (!p) return;
+  openModal({
+    title: "Editar nome", sub: esc(email), submit: "Salvar",
+    body: fld("m-nome", "Nome", `<input type="text" id="m-nome" maxlength="80" value="${esc(p.nome)}">`, { req: 1, help: "Os registros antigos mantêm o nome usado na época." }),
+    onSubmit: async () => {
+      const nome = $("#m-nome").value.trim(); if (!nome) return mErr("Informe o nome.", "#m-nome");
+      try { await S.db.collection("perfis").doc(email).update({ nome }); } catch (e) { return erroEquipe(e); }
+      toast("Nome atualizado.");
+    }
+  });
+}
+function modalAlternar(email) {
+  const p = S.perfis.find(x => x.id === email); if (!p) return;
+  if (!p.ativo) {
+    S.db.collection("perfis").doc(email).update({ ativo: true }).then(() => toast("Perfil reativado."), erroEquipe);
+    return;
+  }
+  openModal({
+    title: "Desativar perfil", sub: `${esc(p.nome)} · ${esc(email)}`, submit: "Desativar", danger: true,
+    body: `<p style="font-size:.88rem">A pessoa perde o acesso ao sistema na hora. Você pode reativar depois, por exemplo na volta de férias ou licença.</p>`,
+    onSubmit: async () => {
+      try { await S.db.collection("perfis").doc(email).update({ ativo: false }); } catch (e) { return erroEquipe(e); }
+      toast("Perfil desativado.");
+    }
+  });
+}
+function modalExcluirPerfil(email) {
+  const p = S.perfis.find(x => x.id === email); if (!p) return;
+  openModal({
+    title: "Excluir perfil", sub: `${esc(p.nome)} · ${esc(email)}`, submit: "Excluir perfil", danger: true,
+    body: `<div class="banner warn">A pessoa perde o acesso ao sistema na hora. Os relatórios e as movimentações que ela registrou continuam no histórico.</div>
+      <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer"><input type="checkbox" id="m-conf" style="margin-top:3px"> <span>Confirmo a exclusão deste perfil.</span></label>`,
+    onSubmit: async () => {
+      if (!$("#m-conf").checked) return mErr("Marque a confirmação para excluir.", "#m-conf");
+      try { await S.db.collection("perfis").doc(email).delete(); } catch (e) { return erroEquipe(e); }
+      toast("Perfil excluído.");
+    }
+  });
+}
+function modalTransferir(email) {
+  const p = S.perfis.find(x => x.id === email); if (!p) return;
+  openModal({
+    title: "Passar a administração", sub: `Novo administrador: ${esc(p.nome)} · ${esc(email)}`, submit: "Passar a administração",
+    body: `<p style="font-size:.88rem">${esc(p.nome)} passará a incluir, desativar e excluir perfis e poderá devolver a administração quando quiser. Você continua na equipe como membro, usando o sistema normalmente, mas deixa de gerenciar os perfis.</p>
+      ${p.ultimoAcesso ? "" : `<div class="banner warn">Esta pessoa ainda não fez o primeiro acesso. Garanta que ela consiga entrar antes de transferir.</div>`}
+      <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer"><input type="checkbox" id="m-conf" style="margin-top:3px"> <span>Confirmo que desejo passar a administração para ${esc(p.nome)}.</span></label>`,
+    onSubmit: async () => {
+      if (!$("#m-conf").checked) return mErr("Marque a confirmação para continuar.", "#m-conf");
+      try { await S.db.doc("sistema/config").set({ admin: email, atualizadoEm: agora() }); } catch (e) { return erroEquipe(e); }
+      toast(`Administração passada para ${p.nome}.`);
+    }
+  });
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-act^='eq-']"); if (!a) return;
+  const email = a.dataset.email;
+  const acoes = { "eq-add": modalIncluir, "eq-edit": modalEditarNome, "eq-toggle": modalAlternar, "eq-del": modalExcluirPerfil, "eq-admin": modalTransferir, "eq-convite": modalConvite };
+  if (a.dataset.act !== "eq-convite" && !S.isAdmin) { toast("Somente o administrador pode alterar a equipe."); return; }
+  acoes[a.dataset.act] && acoes[a.dataset.act](email);
+});
+
+/* ---------- Dados ---------- */
+let avisoSaida = null; // { t: texto, ok: boolean }
+function negarAcesso(txt) { avisoSaida = { t: txt, ok: false }; pararTudo(); firebase.auth().signOut(); }
+function erroAcesso(err) {
+  console.error(err);
+  if (err && err.code === "permission-denied") negarAcesso("Seu acesso ao sistema foi removido ou desativado pelo administrador.");
+  else toast("A conexão com o banco de dados foi interrompida. Recarregue a página.");
+}
+function iniciarDados() {
+  S.loaded = false; S.reports = [];
+  const h = (location.hash || "").slice(1);
+  if (VIEWS.includes(h)) S.view = h;
+  document.querySelectorAll(".nav a").forEach(a => a.classList.toggle("on", a.dataset.nav === S.view));
+  renderView();
+  subs.push(S.db.collection(COL).onSnapshot(snap => {
+    S.reports = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const primeira = !S.loaded; S.loaded = true;
+    if (primeira) renderView(); else atualizar();
+    if (primeira) { $("#cTot").textContent = S.reports.length || ""; $("#cPend").textContent = S.reports.filter(r => r.status === "PENDENTE").length || ""; }
+  }, erroAcesso));
+}
+function entrarNoSistema() {
+  let cfgOk = false, perfisOk = false;
+  const pronto = () => {
+    if (!cfgOk || !perfisOk) return;
+    atualizarQuem();
+    if (!dadosIniciados) {
+      dadosIniciados = true;
+      $("#login").hidden = true;
+      S.canWrite = true; aplicarPermissoes();
+      S.db.collection("perfis").doc(S.meuEmail).update({ ultimoAcesso: agora() }).catch(() => {});
+      iniciarDados();
+    } else if (S.view === "equipe") renderView();
+  };
+  subs.push(S.db.doc("sistema/config").onSnapshot(s => {
+    const antes = S.isAdmin;
+    S.adminEmail = s.exists ? String(s.data().admin || "") : "";
+    S.isAdmin = S.adminEmail === S.meuEmail;
+    cfgOk = true; pronto();
+    if (dadosIniciados && antes !== S.isAdmin) toast(S.isAdmin ? "Você agora é o administrador da equipe." : "A administração da equipe foi passada para " + nomePerfil(S.adminEmail) + ".");
+  }, erroAcesso));
+  subs.push(S.db.collection("perfis").onSnapshot(s => {
+    S.perfis = s.docs.map(d => ({ id: d.id, ...d.data() }));
+    perfisOk = true; pronto();
+  }, erroAcesso));
+}
+
+function init() {
+  if (window.top !== window.self) {
+    document.body.innerHTML = "<p style='padding:24px;font-family:sans-serif'>Por segurança, o Controle de Relatórios só pode ser aberto diretamente no navegador.</p>";
+    return;
+  }
+  const cfg = window.CR_FIREBASE_CONFIG;
+  if (!window.firebase || !cfg || !cfg.apiKey || String(cfg.apiKey).includes("COLE_AQUI")) {
+    semBanco("Preencha o arquivo config.js com os dados do seu projeto Firebase. Veja o passo a passo no README.md.");
+    return;
+  }
+  firebase.initializeApp(cfg);
+  const auth = firebase.auth();
+  auth.languageCode = "pt";
+  const SEG = Object.assign({ lembrarLogin: false, minutosInatividade: 30 }, window.CR_SEGURANCA || {});
+  const persistencia = SEG.lembrarLogin ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+  const prontoPersistencia = auth.setPersistence(persistencia).catch(() => {});
+  S.db = firebase.firestore();
+  S.dl = downloadLocal;
+  let acabouDeCriar = false;
+
+  // Encerramento automático por inatividade.
+  const limiteMs = Math.max(1, Number(SEG.minutosInatividade) || 30) * 60000;
+  let ultimaAtividade = Date.now(), timerInat = null;
+  const marcar = () => { ultimaAtividade = Date.now(); };
+  ["pointerdown", "keydown", "wheel", "touchstart", "scroll"].forEach(ev => window.addEventListener(ev, marcar, { passive: true, capture: true }));
+  function verificarInatividade() {
+    if (!auth.currentUser) return;
+    if (Date.now() - ultimaAtividade >= limiteMs) {
+      avisoSaida = { t: `Sessão encerrada após ${Math.round(limiteMs / 60000)} minutos sem uso. Entre novamente.`, ok: true };
+      pararTudo(); auth.signOut();
+    }
+  }
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) verificarInatividade(); });
+
+  document.querySelectorAll("[data-painel]").forEach(b => b.addEventListener("click", () => painel(b.dataset.painel)));
+  $("#l-novo").addEventListener("click", () => { $("#n-email").value = $("#l-email").value.trim(); painel("novo"); });
+
+  $("#lp-entrar").addEventListener("submit", async e => {
+    e.preventDefault(); e.stopPropagation();
+    const email = $("#l-email").value.trim(), senha = $("#l-senha").value;
+    if (!email || !senha) { msgLogin("Informe o e-mail e a senha."); return; }
+    $("#l-btn").disabled = true; msgLogin("");
+    try { await prontoPersistencia; await auth.signInWithEmailAndPassword(email, senha); }
+    catch (err) { msgLogin(MSG_LOGIN[err.code] || "Não foi possível entrar. Tente novamente."); }
+    finally { $("#l-btn").disabled = false; }
+  }, true);
+
+  $("#lp-novo").addEventListener("submit", async e => {
+    e.preventDefault(); e.stopPropagation();
+    const email = $("#n-email").value.trim().toLowerCase(), s1 = $("#n-senha").value, s2 = $("#n-senha2").value;
+    if (!RX_EMAIL.test(email)) { msgEm("#n-msg", "Informe um e-mail válido."); return; }
+    const es = erroSenha(s1); if (es) { msgEm("#n-msg", es); return; }
+    if (s1 !== s2) { msgEm("#n-msg", "As duas senhas digitadas não são iguais."); return; }
+    $("#n-btn").disabled = true; msgEm("#n-msg", "");
+    try {
+      await prontoPersistencia;
+      acabouDeCriar = true;
+      const cred = await auth.createUserWithEmailAndPassword(email, s1);
+      await cred.user.sendEmailVerification();
+      $("#n-senha").value = ""; $("#n-senha2").value = "";
+    } catch (err) { acabouDeCriar = false; msgEm("#n-msg", MSG_LOGIN[err.code] || "Não foi possível criar a senha agora. Tente novamente."); }
+    finally { $("#n-btn").disabled = false; }
+  }, true);
+
+  $("#lp-init").addEventListener("submit", async e => {
+    e.preventDefault(); e.stopPropagation();
+    const nome = $("#i-nome").value.trim();
+    if (!nome) { msgEm("#i-msg", "Informe o seu nome."); return; }
+    $("#i-btn").disabled = true; msgEm("#i-msg", "");
+    try {
+      await S.db.doc("sistema/config").set({ admin: S.meuEmail, atualizadoEm: agora() });
+      await S.db.collection("perfis").doc(S.meuEmail).set({ email: S.meuEmail, nome, ativo: true, criadoEm: agora(), criadoPor: S.meuEmail });
+      entrarNoSistema();
+    } catch (err) {
+      console.error(err);
+      msgEm("#i-msg", err && err.code === "permission-denied"
+        ? "O Firebase recusou a configuração inicial. Confira se as regras do Firestore foram publicadas com este e-mail como administrador inicial."
+        : "Não foi possível concluir agora. Tente novamente.");
+    } finally { $("#i-btn").disabled = false; }
+  }, true);
+
+  $("#l-reset").addEventListener("click", async () => {
+    const email = $("#l-email").value.trim();
+    if (!email) { msgLogin("Digite seu e-mail acima e clique novamente em “Esqueci minha senha”."); $("#l-email").focus(); return; }
+    try { await auth.sendPasswordResetEmail(email); msgLogin("Se o e-mail estiver cadastrado, você receberá um link para criar uma nova senha.", true); }
+    catch (err) { msgLogin(MSG_LOGIN[err.code] || "Não foi possível enviar o e-mail agora."); }
+  });
+
+  $("#v-enviar").addEventListener("click", async () => {
+    const u = auth.currentUser; if (!u) return;
+    try { await u.sendEmailVerification(); msgEm("#v-msg", "Link enviado. Confira a caixa de entrada e a de spam.", true); }
+    catch (err) { msgEm("#v-msg", MSG_LOGIN[err.code] || "Não foi possível enviar agora. Aguarde alguns minutos."); }
+  });
+  $("#v-ok").addEventListener("click", async () => {
+    const u = auth.currentUser; if (!u) return;
+    $("#v-ok").disabled = true;
+    try {
+      await u.reload();
+      const atual = auth.currentUser;
+      if (!atual.emailVerified) { msgEm("#v-msg", "O e-mail ainda não foi confirmado. Abra o link que enviamos e tente de novo."); return; }
+      await atual.getIdToken(true);
+      aposLogin(atual);
+    } catch (err) { msgEm("#v-msg", MSG_LOGIN[err.code] || "Não foi possível verificar agora. Tente novamente."); }
+    finally { $("#v-ok").disabled = false; }
+  });
+  $("#v-sair").addEventListener("click", () => auth.signOut());
+  $("#sair").addEventListener("click", () => { avisoSaida = { t: "Você saiu do sistema.", ok: true }; pararTudo(); auth.signOut(); });
+
+  async function aposLogin(u) {
+    if (!u.emailVerified) {
+      $("#v-txt").textContent = acabouDeCriar
+        ? `Enviamos um link de confirmação para ${u.email}. Abra o e-mail (veja também a caixa de spam), clique no link e depois volte aqui.`
+        : `Antes do primeiro uso, é preciso confirmar o e-mail ${u.email}. Clique em “Enviar o link novamente”, abra o e-mail, clique no link e depois volte aqui.`;
+      if (acabouDeCriar) $("#v-enviar").textContent = "Enviar o link novamente";
+      acabouDeCriar = false;
+      painel("verif");
+      return;
+    }
+    S.meuEmail = String(u.email || "").toLowerCase();
+    let snap;
+    try { snap = await S.db.doc("sistema/config").get(); }
+    catch (err) {
+      if (err && err.code === "permission-denied") return negarAcesso("Seu e-mail ainda não faz parte da equipe deste sistema, ou o seu perfil foi desativado. Fale com o administrador.");
+      console.error(err); msgLogin("Não foi possível carregar o sistema. Verifique a conexão e tente novamente."); return;
+    }
+    if (!snap.exists) {
+      $("#i-nome").value = nomeSugerido(S.meuEmail);
+      painel("init");
+      return;
+    }
+    entrarNoSistema();
+  }
+
+  auth.onAuthStateChanged(u => {
+    pararTudo();
+    closeModal();
+    if (!u) {
+      clearInterval(timerInat); timerInat = null;
+      S.meuEmail = ""; S.me = ""; S.isAdmin = false; S.adminEmail = ""; S.perfis = []; S.reports = []; S.loaded = false;
+      S.view = "dashboard"; S.back = "relatorios"; S.fichaId = null; S.fichaHL = null; S.editId = null; S.f = filtrosVazios();
+      S.hf = { a: "", b: "", tipo: "", mod: "", q: "" }; S.pendTab = "todas";
+      $("#view").innerHTML = ""; $("#who").textContent = "";
+      $("#cTot").textContent = ""; $("#cPend").textContent = "";
+      $("#l-senha").value = "";
+      painel("entrar");
+      if (avisoSaida) { msgLogin(avisoSaida.t, avisoSaida.ok); avisoSaida = null; }
+      return;
+    }
+    ultimaAtividade = Date.now();
+    clearInterval(timerInat); timerInat = setInterval(verificarInatividade, 30000);
+    aposLogin(u);
+  });
+}
+init();
+</script>
+</body>
+</html>

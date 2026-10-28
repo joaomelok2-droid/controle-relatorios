@@ -1,0 +1,93 @@
+rules_version = '2';
+
+// Regras de segurança do Controle de Relatórios.
+//
+// Quem pode entrar: o administrador e os perfis ATIVOS da equipe (coleção "perfis"),
+// sempre com o e-mail confirmado. Quem cuida da equipe: somente o administrador,
+// cujo e-mail fica no documento "sistema/config".
+//
+// A única linha a editar é a do administrador inicial, logo abaixo. Ela só vale
+// para a primeira configuração; depois disso a administração é passada pelo próprio sistema.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function adminInicial() { return 'joao.coren.melo@gmail.com'; }
+
+    function logado() {
+      return request.auth != null
+        && request.auth.token.email is string
+        && request.auth.token.email_verified == true;
+    }
+    function meuEmail() { return request.auth.token.email.lower(); }
+    function caminhoConfig() { return /databases/$(database)/documents/sistema/config; }
+    function caminhoPerfil(email) { return /databases/$(database)/documents/perfis/$(email); }
+
+    function ehAdmin() {
+      return logado() && exists(caminhoConfig())
+        && get(caminhoConfig()).data.admin == meuEmail();
+    }
+    function membroAtivo() {
+      return logado() && exists(caminhoPerfil(meuEmail()))
+        && get(caminhoPerfil(meuEmail())).data.ativo == true;
+    }
+    function autorizado() { return ehAdmin() || membroAtivo(); }
+
+    function registroValido(d) {
+      return d.status in ['PENDENTE', 'APROVADO', 'CANCELADO']
+        && d.solicitante is string && d.solicitante.size() > 0
+        && d.modalidade in ['DIARIA', 'AUXILIO']
+        && d.historico is list && d.historico.size() <= 3000;
+    }
+    function perfilValido(id, d) {
+      return d.email == id && id == id.lower()
+        && d.nome is string && d.nome.size() > 0 && d.nome.size() <= 80
+        && d.ativo is bool;
+    }
+
+    // Relatórios: qualquer membro autorizado. Uma alteração nunca pode reduzir o histórico.
+    match /relatorios/{id} {
+      allow read: if autorizado();
+      allow create: if autorizado() && registroValido(request.resource.data);
+      allow update: if autorizado()
+        && registroValido(request.resource.data)
+        && request.resource.data.historico.size() >= resource.data.historico.size();
+      allow delete: if autorizado();
+    }
+
+    // Quem é o administrador.
+    match /sistema/config {
+      allow read: if autorizado() || (logado() && meuEmail() == adminInicial());
+      // Configuração inicial: só o administrador inicial, uma única vez.
+      allow create: if logado() && meuEmail() == adminInicial()
+        && request.resource.data.keys().hasOnly(['admin', 'atualizadoEm'])
+        && request.resource.data.admin == meuEmail();
+      // Passar a administração: só o administrador atual, e só para um perfil ativo.
+      allow update: if ehAdmin()
+        && request.resource.data.keys().hasOnly(['admin', 'atualizadoEm'])
+        && request.resource.data.admin is string
+        && exists(caminhoPerfil(request.resource.data.admin))
+        && get(caminhoPerfil(request.resource.data.admin)).data.ativo == true;
+      allow delete: if false;
+    }
+
+    // Perfis da equipe.
+    match /perfis/{email} {
+      allow read: if autorizado();
+      // O administrador inclui e altera perfis, mas não pode desativar o próprio perfil.
+      allow create, update: if ehAdmin()
+        && perfilValido(email, request.resource.data)
+        && (email != get(caminhoConfig()).data.admin || request.resource.data.ativo == true);
+      // Cada membro só pode registrar a data do próprio último acesso.
+      allow update: if membroAtivo() && email == meuEmail()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ultimoAcesso']);
+      // O administrador exclui perfis, menos o próprio.
+      allow delete: if ehAdmin() && email != get(caminhoConfig()).data.admin;
+    }
+
+    // Qualquer outro caminho fica bloqueado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
